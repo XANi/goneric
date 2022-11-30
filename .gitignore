@@ -1,0 +1,55 @@
+
+
+# editor crap
+*~
+.*.sw?
+.sw?
+.\#*
+\#*\#
+DEADJOE
+.idea/*
+# compiled files
+_vendor/
+vendor/
+*\.test
+tags
+TAGS
+
+# Compiled Object files, Static and Dynamic libs (Shared Objects)
+*.o
+*.a
+*.so
+
+# various output files
+*.out
+cover-cobertura.xml
+cover.json
+coverage.out
+report.xml
+.env.sh
+
+# Architecture specific extensions/prefixes
+*.[568vq]
+[568vq].out
+
+*.cgo1.go
+*.cgo2.c
+_cgo_defun.c
+_cgo_gotypes.go
+_cgo_export.*
+
+_testmain.go
+
+*.exe
+*.test
+*.prof
+*.out
+*.static
+*.arm
+*.arm64
+*.386
+
+
+# local test data
+
+t-data/*local

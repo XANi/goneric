@@ -34,6 +34,9 @@ func SliceMap[T any, M comparable](a []T, f func(T) M) map[M]T {
 	return n
 }
 
+// SliceMapSkip works like `SliceMap` but
+// allows slice->map function to skip elements via returning true to second argument
+// `[]Struct{} -> map[func(Struct)]Struct`
 func SliceMapSkip[T any, Z comparable](slice []T, comparable func(T) (comparable Z, skip bool)) (m map[Z]T) {
 	m = make(map[Z]T, len(slice))
 	for _, e := range slice {
@@ -66,6 +69,11 @@ func SliceMapSetFunc[T any, M comparable](mapFunc func(T) M, a []T) (n map[M]boo
 	return n
 }
 
+// SliceDiff compares two slices of comparable values and
+// returns slice of elements that are only in first/left element
+// and ones that are only in right element
+// Duplicates are ignored.
+// `([]T, []T) -> (leftOnly []T, rightOnly []T)`
 func SliceDiff[T comparable](v1 []T, v2 []T) (inLeft []T, inRight []T) {
 	m1 := map[T]bool{}
 	m2 := map[T]bool{}
@@ -89,6 +97,12 @@ func SliceDiff[T comparable](v1 []T, v2 []T) (inLeft []T, inRight []T) {
 	return
 }
 
+// SliceDiffFunc compares two slices of any value
+// using one conversion function per type to convert it into conmparables
+// returns slice of elements that are only in first/left element
+// and ones that are only in right element.
+// Duplicates are ignored.
+//([]T1,[]T2) -> (leftOnly []T1, rightOnly []T2)
 func SliceDiffFunc[T1 any, T2 any, Z comparable](
 	v1 []T1,
 	v2 []T2,

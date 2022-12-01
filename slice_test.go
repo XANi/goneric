@@ -73,7 +73,12 @@ func TestSliceMapSkip(t *testing.T) {
 }
 
 func ExampleSliceMapSkip() {
-	sliceMap := SliceMapSkip(complexSlice1, func(t ComplexSlice1) (string, bool) {
+	type CS struct {
+		Name  string
+		Value string
+	}
+	data := []CS{{Name: "t1", Value: "v1"}, {Name: "t2", Value: "v2"}, {Name: "t3", Value: "v3"}, {Name: "t4", Value: "v4"}}
+	sliceMap := SliceMapSkip(data, func(t CS) (string, bool) {
 		if t.Name == "t2" {
 			return t.Name, true
 		} else {
@@ -81,6 +86,7 @@ func ExampleSliceMapSkip() {
 		}
 	})
 	fmt.Printf("map from slice with skipped t2: [%+v]", sliceMap)
+	//Output: map from slice with skipped t2: [map[t1:{Name:t1 Value:v1} t3:{Name:t3 Value:v3} t4:{Name:t4 Value:v4}]]
 }
 
 func TestSliceMapSet(t *testing.T) {
@@ -188,4 +194,19 @@ func TestSliceDiffFunc(t *testing.T) {
 	)
 	assert.Equal(t, []Sl1{}, out_righta, "left side")
 	assert.Equal(t, []Sl2{{Login: "c"}, {Login: "d"}}, out_rightb, "right side")
+}
+
+func ExampleSliceDiffFunc() {
+	data1 := []string{"1", "2", "3", "4", "5"}
+	data2 := []float32{1, 7, 3, 4}
+	stringToInt := func(s string) int {
+		i, _ := strconv.Atoi(s)
+		return i
+	}
+	floatToInt := func(f float32) int {
+		return int(f)
+	}
+	left, right := SliceDiffFunc(data1, data2, stringToInt, floatToInt)
+	fmt.Printf("left: %T%+v right: %T%+v", left, left, right, right)
+	//Output: left: []string[2 5] right: []float32[7]
 }

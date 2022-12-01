@@ -45,6 +45,37 @@ func MapSliceErr[T1, T2 any](mapFunc func(v T1) (T2, error), slice []T1) (out []
 	return out, nil
 }
 
+// MapSliceSkip maps slice using provided function, allowing to skip entries by returning true
+// Returns slice with elements that didn't return true
+func MapSliceSkip[T1, T2 any](mapFunc func(v T1) (T2, bool), slice []T1) (out []T2) {
+	out = make([]T2, 0)
+	for _, v := range slice {
+		r, skip := mapFunc(v)
+		if !skip {
+			out = append(out, r)
+		}
+	}
+	return out
+}
+
+// MapSliceErrSkip maps slice using provided function, allowing to skip entries by returning ErrSkip
+func MapSliceErrSkip[T1, T2 any](mapFunc func(v T1) (T2, error), slice []T1) (out []T2, err error) {
+	out = make([]T2, 0)
+	for _, v := range slice {
+		r, err := mapFunc(v)
+		switch err.(type) {
+		case ErrSkip:
+			continue
+		case nil:
+			out = append(out, r)
+		default:
+			return out, err
+		}
+	}
+	return out, nil
+}
+
+// MapSliceKey returns keys of a map in slice
 func MapSliceKey[K comparable, V any](in map[K]V) (out []K) {
 	out = make([]K, len(in))
 	i := 0
@@ -54,6 +85,8 @@ func MapSliceKey[K comparable, V any](in map[K]V) (out []K) {
 	}
 	return out
 }
+
+// MapSliceValue returns values of a map in slice
 func MapSliceValue[K comparable, V any](in map[K]V) (out []V) {
 	out = make([]V, len(in))
 	i := 0

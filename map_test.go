@@ -54,6 +54,40 @@ func TestMapSliceErr(t *testing.T) {
 	assert.Equal(t, []int{1, 2, 3, 4}, mappedData2)
 }
 
+func TestMapSliceSkip(t *testing.T) {
+	mappedData := MapSliceSkip(func(v string) (int, bool) {
+		i, err := strconv.Atoi(v)
+		return i, err != nil
+	}, []string{"1", "2", "z", "4"})
+	assert.Equal(t, []int{1, 2, 4}, mappedData)
+	mappedData2 := MapSliceSkip(func(v string) (int, bool) {
+		i, err := strconv.Atoi(v)
+		return i, err != nil
+	}, []string{"1", "2", "3", "4"})
+	assert.Equal(t, []int{1, 2, 3, 4}, mappedData2)
+}
+
+func TestMapSliceErrSkip(t *testing.T) {
+	mappedData, err := MapSliceErrSkip(func(v string) (int, error) {
+		i, err := strconv.Atoi(v)
+		if v == "j" {
+			return i, err
+		}
+		if err != nil {
+			return i, ErrSkip{}
+		}
+		return i, nil
+	}, []string{"1", "2", "z", "4", "j", "6"})
+	assert.Error(t, err)
+	assert.Equal(t, []int{1, 2, 4}, mappedData)
+	mappedData2, err := MapSliceErrSkip(func(v string) (int, error) {
+		i, err := strconv.Atoi(v)
+		return i, err
+	}, []string{"1", "2", "3", "4"})
+	assert.NoError(t, err)
+	assert.Equal(t, []int{1, 2, 3, 4}, mappedData2)
+}
+
 func TestMapSliceKey(t *testing.T) {
 	data := map[string]int{
 		"a": 1,

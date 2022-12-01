@@ -43,7 +43,8 @@ There are few exceptions for convenience, like variadic `Map`.
 
 ## Worker
 
-* `WorkerPool` - spawn x goroutines with workers return after input channel is closed and all requests are parsed
+* `WorkerPool` - spawn x goroutines with workers and return after input channel is closed and all requests are parsed
+* `WorkerPoolFinisher` - spawn x goroutines with workers in background, returns finisher channel that signals with `bool{true}` when the processing ends.
 
 ## Parallel
 

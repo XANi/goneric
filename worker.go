@@ -24,3 +24,15 @@ func WorkerPool[T1, T2 any](input chan T1, output chan T2, worker func(T1) T2, c
 	wg.Wait()
 	close(output)
 }
+
+// WorkerPoolFinisher runs WorkerPool in the background and
+// returns channel that returns `true` then closes when workers finish
+func WorkerPoolFinisher[T1, T2 any](input chan T1, output chan T2, worker func(T1) T2, concurrency int) chan bool {
+	finisher := make(chan bool, 1)
+	go func() {
+		WorkerPool(input, output, worker, concurrency)
+		finisher <- true
+		close(finisher)
+	}()
+	return finisher
+}

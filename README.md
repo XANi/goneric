@@ -40,6 +40,14 @@ There are few exceptions for convenience, like variadic `Map`.
 * `MapSliceValue` - Convert map to slice of its values. `map[Comparable]V -> []V`
 * `MapErr` - Same as `Map` but function can return error that will stop the loop and propagate it out
 * `MapSliceErr` - Same as `MapSlice` but function can return error that will stop the loop and propagate it out
+* `MapSliceSkip` - Same as `MapSlice` but function can return true in second argument to skip the entry
+* `MapSliceErrSkip` - Same as `MapSliceErr` but `ErrSkip` error type can be used to skip entry instead of erroring out
+
+## Filter
+
+* `FilterMap` - Filter thru a map using a function
+* `FilterSlice` - Fliter thru a slice using a function
+* `FilterChan` - Fliter thru a channel using a function
 
 ## Worker
 

@@ -36,7 +36,7 @@ func ParallelMapSlice[T1, T2 any](mapFunc func(T1) T2, concurrency int, slice []
 	// so we have to do with anonymous ones
 	go func() {
 		defer wg.Done()
-		WorkerPool(
+		WorkerPoolClose(
 			inCh,
 			outCh,
 			func(i struct {
@@ -68,10 +68,10 @@ func ParallelMapSlice[T1, T2 any](mapFunc func(T1) T2, concurrency int, slice []
 	return out
 }
 
-// ParallelMapSliceChannel feeds slice to function in parallel and returns channels with function output
+// ParallelMapSliceChan feeds slice to function in parallel and returns channels with function output
 // channel is closed when function finishes. Caller should close input channel when it finishes sending
 // or else it will leak goroutines
-func ParallelMapSliceChannel[T1, T2 any](mapFunc func(T1) T2, concurrency int, slice []T1) chan T2 {
+func ParallelMapSliceChan[T1, T2 any](mapFunc func(T1) T2, concurrency int, slice []T1) chan T2 {
 	in := make(chan T1, 1)
 	out := make(chan T2, concurrency/2+1)
 	go func() {
@@ -81,17 +81,17 @@ func ParallelMapSliceChannel[T1, T2 any](mapFunc func(T1) T2, concurrency int, s
 		close(in)
 	}()
 	go func() {
-		WorkerPool(in, out, mapFunc, concurrency)
+		WorkerPoolClose(in, out, mapFunc, concurrency)
 	}()
 
 	return out
 }
 
-// ParallelMapSliceChannelFinisher feeds slice to function in parallel and returns channels with function output
+// ParallelMapSliceChanFinisher feeds slice to function in parallel and returns channels with function output
 // channel is closed when function finishes. Caller should close input channel when it finishes sending
 // or else it will leak goroutines
 // Second channel will return true (and then be closed) when the worker finishes parsing
-func ParallelMapSliceChannelFinisher[T1, T2 any](mapFunc func(T1) T2, concurrency int, slice []T1) (chan T2, chan bool) {
+func ParallelMapSliceChanFinisher[T1, T2 any](mapFunc func(T1) T2, concurrency int, slice []T1) (chan T2, chan bool) {
 	in := make(chan T1, 1)
 	out := make(chan T2, concurrency/2+1)
 	finisher := make(chan bool, 1)
@@ -102,7 +102,7 @@ func ParallelMapSliceChannelFinisher[T1, T2 any](mapFunc func(T1) T2, concurrenc
 		close(in)
 	}()
 	go func() {
-		WorkerPool(in, out, mapFunc, concurrency)
+		WorkerPoolClose(in, out, mapFunc, concurrency)
 		finisher <- true
 		close(finisher)
 	}()

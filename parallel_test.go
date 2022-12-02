@@ -50,7 +50,7 @@ func ExampleParallelMapSlice() {
 
 func TestParallelSliceMapChannel(t *testing.T) {
 	data := []string{"1", "3", "2", "7", "9", "12"}
-	ch := ParallelMapSliceChannel(func(s string) int {
+	ch := ParallelMapSliceChan(func(s string) int {
 		i, _ := strconv.Atoi(s)
 		return i
 	}, 3, data)
@@ -63,7 +63,7 @@ func TestParallelSliceMapChannel(t *testing.T) {
 
 func TestParallelSliceMapChannelFinisher(t *testing.T) {
 	data := []string{"1", "3", "2", "7", "9", "12"}
-	ch, finish := ParallelMapSliceChannelFinisher(func(s string) int {
+	ch, finish := ParallelMapSliceChanFinisher(func(s string) int {
 		i, _ := strconv.Atoi(s)
 		return i
 	}, 3, data)

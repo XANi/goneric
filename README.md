@@ -6,7 +6,7 @@
 
 # Goneric 
 
-Collection of generics-related utility functions
+Collection of generics-related utility functions, slice/map/channel manipulation and some parallel processing.
 
 ## Conventions
 
@@ -43,24 +43,47 @@ There are few exceptions for convenience, like variadic `Map`.
 * `MapSliceSkip` - Same as `MapSlice` but function can return true in second argument to skip the entry
 * `MapSliceErrSkip` - Same as `MapSliceErr` but `ErrSkip` error type can be used to skip entry instead of erroring out
 
-## Filter
+### Filter
 
 * `FilterMap` - Filter thru a map using a function
-* `FilterSlice` - Fliter thru a slice using a function
-* `FilterChan` - Fliter thru a channel using a function
+* `FilterSlice` - Filter thru a slice using a function
+* `FilterChan` - Filter thru a channel using a function
+* `FilterChanErr` - Filter thru a channel using a function, with separate output channel for that function errors
 
-## Worker
+### Channel tools
+
+* `ChanGen` - Uses function to generate channel messages
+* `ChanGenCloser` - Use function to generate channel messages, stop when closer function is called
+* `ChanToSlice` - Loads data to slice from channel until channel is closed
+* `ChanToSliceN` - Loads data to slice from channel to at most N elements
+* `SliceToChan` - Sends slice to channel
+* `SliceToChanClose` - Sends slice to channel, then closes it.
+
+### Worker
 
 * `WorkerPool` - spawn x goroutines with workers and return after input channel is closed and all requests are parsed
+* `WorkerPoolClose` - spawn x goroutines with workers and return after input channel is closed and all requests are parsed. Also close output channel
+* `WorkerPoolBackground` - spawn x goroutines with workers in background and returns output channel
+* `WorkerPoolBackgroundClose` - spawn x goroutines with workers in background and returns output channel. 
+   Close output channel if input channel is closed, after processing all messages
 * `WorkerPoolFinisher` - spawn x goroutines with workers in background, returns finisher channel that signals with `bool{true}` when the processing ends.
 
-## Parallel
+### Parallel
 
 * `ParallelMap` - like `Map` but runs function in parallel up to specified number of goroutines. Ordered.
 * `ParallelMapSlice` - like `MapSlice` but runs function in parallel up to specified number of goroutines. Ordered.
-* `ParallelMapSliceChannel` - runs slice elements thru function and sends it to channel
-* `ParallelMapSliceChannelFinisher` - runs slice elements thru function and sends it to channel. 
-   Returns `finisher chan(bool){true}` that will return single `true` message when all workers finish
+* `ParallelMapSliceChan` - runs slice elements thru function and sends it to channel
+* `ParallelMapSliceChanFinisher` - runs slice elements thru function and sends it to channel. 
+   Returns `finisher chan(bool){true}` that will return single `true` message when all workers finish and close it
+
+### Math
+
+* `Sum` - sums variadic numeric arguments
+
+
+## Types
+
+* `Number` - any basic numeric types
 
 ## Analytics
 

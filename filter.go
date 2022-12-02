@@ -36,3 +36,24 @@ func FilterChan[T any](filterFunc func(T) bool, inCh chan T) (outCh chan T) {
 	}()
 	return outCh
 }
+
+//FilterChanErr filters elements going thru channel, redirecting errors to separate channel
+// both channels need to be read or else it will stall
+// close is propagated
+func FilterChanErr[T any](filterFunc func(T) (bool, error), inCh chan T) (outCh chan T, errCh chan error) {
+	outCh = make(chan T, 1)
+	errCh = make(chan error, 1)
+	go func() {
+		for v := range inCh {
+			ok, err := filterFunc(v)
+			if err != nil {
+				errCh <- err
+			} else if ok {
+				outCh <- v
+			}
+		}
+		close(outCh)
+		close(errCh)
+	}()
+	return outCh, errCh
+}

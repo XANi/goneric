@@ -78,12 +78,31 @@ There are few exceptions for convenience, like variadic `Map`.
 
 ### Math
 
-* `Sum` - sums variadic numeric arguments
+Not equivalent of `math` library, NaN math is ignored, zero length inputs might, sanitize your inputs.
+
+Results unless specified otherwise will follow math of type, so median of `[]int{8,9}` will be `int{8}` coz of rounding.
+
+
+* `Sum`
+* `SumF64` - sum returning float64, for summing up small ints
+* `Min`
+* `Max`
+* `Avg`
+* `AvgF64` - average with final input calculated as float64. Addition is still in source 
+* `AvgF64F64` - average with float64 accumulator. Use if you want to avoid overflow on small int type
+* `Median`
+* `MedianF64` - median with final division using float64 type to avoid overflows
 
 
 ## Types
 
 * `Number` - any basic numeric types
+
+## Current project state
+
+Unstable interface - the function names might change, the new ones will still be committed with full test coverage, no benchmarks yet.
+Take care with `get -u` until 1.0.0 hits.
+
 
 ## Analytics
 

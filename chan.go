@@ -21,6 +21,7 @@ func ChanGen[T any](genFunc func() T) chan T {
 func ChanGenCloser[T any](genFunc func() T) (out chan T, closer func()) {
 	ch := make(chan T, 1)
 	m := sync.RWMutex{}
+	// TODO check performance, check whether there is a faster way
 	closer = func() {
 		m.Lock()
 	}

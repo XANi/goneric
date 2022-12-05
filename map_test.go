@@ -1,6 +1,7 @@
 package goneric
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"sort"
 	"strconv"
@@ -108,4 +109,18 @@ func TestMapSliceValue(t *testing.T) {
 	dataSlice := MapSliceValue(data)
 	sort.Ints(dataSlice)
 	assert.EqualValues(t, []int{1, 2, 3}, dataSlice)
+}
+
+func TestMapToSlice(t *testing.T) {
+	assert.True(t,
+		CompareSliceSet(
+			[]string{"a-1", "b-2"},
+			MapToSlice(
+				func(k string, v int) string {
+					return fmt.Sprintf("%s-%d", k, v)
+				}, map[string]int{
+					"a": 1,
+					"b": 2,
+				},
+			)))
 }

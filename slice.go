@@ -132,3 +132,13 @@ func SliceDiffFunc[T1 any, T2 any, Z comparable](
 	}
 	return
 }
+
+// SliceIn checks if slice contains a value. Value must be comparable
+func SliceIn[T comparable](slice []T, contains T) bool {
+	for _, v := range slice {
+		if v == contains {
+			return true
+		}
+	}
+	return false
+}

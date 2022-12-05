@@ -31,6 +31,7 @@ There are few exceptions for convenience, like variadic `Map`.
    that are only in first set, and second elements only in second set. `([]T, []T) -> (leftOnly []T, rightOnly []T)`
 * `SliceDiffFunc`  - As `SliceDiff` but type of slice is irrelevant, via use of conversion function that converts it
    into comparable type. `([]T1,[]T2) -> (leftOnly []T1, rightOnly []T2)`
+* `SliceIn` - Check whether value is in slice
 
 ### Map
 

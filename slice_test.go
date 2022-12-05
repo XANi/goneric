@@ -210,3 +210,17 @@ func ExampleSliceDiffFunc() {
 	fmt.Printf("left: %T%+v right: %T%+v", left, left, right, right)
 	//Output: left: []string[2 5] right: []float32[7]
 }
+
+func TestSliceIn(t *testing.T) {
+	type Comparable struct {
+		Name string
+	}
+	assert.True(t, SliceIn([]int{1, 2, 3, 4}, 3))
+	assert.True(t, SliceIn(
+		[]Comparable{{Name: "t1"}, {Name: "t2"}},
+		Comparable{Name: "t2"}))
+	assert.False(t, SliceIn([]int{1, 2, 3, 4}, 5))
+	assert.False(t, SliceIn(
+		[]Comparable{{Name: "t1"}, {Name: "t2"}},
+		Comparable{Name: "t0"}))
+}

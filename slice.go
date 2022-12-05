@@ -26,7 +26,7 @@ func CompareSliceSet[T comparable](v1 []T, v2 []T) bool {
 // SliceMap turn slice into a map via extracting key from it using helper function
 // and setting the map value to that slice
 // `[]Struct{} -> map[func(Struct)]Struct`
-func SliceMap[T any, M comparable](a []T, f func(T) M) map[M]T {
+func SliceMap[T any, M comparable](f func(T) M, a []T) map[M]T {
 	n := make(map[M]T, len(a))
 	for _, e := range a {
 		n[f(e)] = e
@@ -37,7 +37,7 @@ func SliceMap[T any, M comparable](a []T, f func(T) M) map[M]T {
 // SliceMapSkip works like `SliceMap` but
 // allows slice->map function to skip elements via returning true to second argument
 // `[]Struct{} -> map[func(Struct)]Struct`
-func SliceMapSkip[T any, Z comparable](slice []T, comparable func(T) (comparable Z, skip bool)) (m map[Z]T) {
+func SliceMapSkip[T any, Z comparable](comparable func(T) (comparable Z, skip bool), slice []T) (m map[Z]T) {
 	m = make(map[Z]T, len(slice))
 	for _, e := range slice {
 		k, skip := comparable(e)

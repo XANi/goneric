@@ -18,6 +18,8 @@ because `m["nonexistent_key"] == false`
 Naming function goes in order of `operation_group`, `input type`, `modifier`/`output` with ones irrelevant skipped.
 There are few exceptions for convenience, like variadic `Map`.
 
+If possible,sensible, functions that take function parameter should have function as first parameter
+
 
 ## Functions
 

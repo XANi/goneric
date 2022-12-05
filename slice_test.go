@@ -50,9 +50,9 @@ func TestCompareSliceSet(t *testing.T) {
 }
 
 func TestSliceMap(t *testing.T) {
-	sliceMap := SliceMap(complexSlice1, func(t ComplexSlice1) string {
+	sliceMap := SliceMap(func(t ComplexSlice1) string {
 		return t.Name
-	})
+	}, complexSlice1)
 	assert.Equal(t, complexSlice1[0], sliceMap["t1"])
 	assert.Equal(t, complexSlice1[1], sliceMap["t2"])
 	assert.Equal(t, complexSlice1[2], sliceMap["t3"])
@@ -60,13 +60,13 @@ func TestSliceMap(t *testing.T) {
 }
 func TestSliceMapSkip(t *testing.T) {
 
-	sliceMap := SliceMapSkip(complexSlice1, func(t ComplexSlice1) (string, bool) {
+	sliceMap := SliceMapSkip(func(t ComplexSlice1) (string, bool) {
 		if t.Name == "t2" {
 			return t.Name, true
 		} else {
 			return t.Name, false
 		}
-	})
+	}, complexSlice1)
 	assert.Equal(t, complexSlice1[0], sliceMap["t1"])
 	assert.Equal(t, complexSlice1[2], sliceMap["t3"])
 	assert.Len(t, sliceMap, 2)
@@ -78,13 +78,13 @@ func ExampleSliceMapSkip() {
 		Value string
 	}
 	data := []CS{{Name: "t1", Value: "v1"}, {Name: "t2", Value: "v2"}, {Name: "t3", Value: "v3"}, {Name: "t4", Value: "v4"}}
-	sliceMap := SliceMapSkip(data, func(t CS) (string, bool) {
+	sliceMap := SliceMapSkip(func(t CS) (string, bool) {
 		if t.Name == "t2" {
 			return t.Name, true
 		} else {
 			return t.Name, false
 		}
-	})
+	}, data)
 	fmt.Printf("map from slice with skipped t2: [%+v]", sliceMap)
 	//Output: map from slice with skipped t2: [map[t1:{Name:t1 Value:v1} t3:{Name:t3 Value:v3} t4:{Name:t4 Value:v4}]]
 }

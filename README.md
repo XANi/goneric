@@ -70,6 +70,8 @@ If possible,sensible, functions that take function parameter should have functio
 * `WorkerPoolBackgroundClose` - spawn x goroutines with workers in background and returns output channel. 
    Close output channel if input channel is closed, after processing all messages
 * `WorkerPoolFinisher` - spawn x goroutines with workers in background, returns finisher channel that signals with `bool{true}` when the processing ends.
+* `WorkerPoolDrain` - spawn x goroutines that will run a function on the channel element without returning anything
+* `WorkerPoolAsync` - function will run x goroutines for worker in the background and return a function that enqueues job and returns channel with result of that job, allowing to queue stuff to run in background conveniently
 
 ### Parallel
 
@@ -79,6 +81,12 @@ If possible,sensible, functions that take function parameter should have functio
 * `ParallelMapSliceChanFinisher` - runs slice elements thru function and sends it to channel. 
    Returns `finisher chan(bool){true}` that will return single `true` message when all workers finish and close it
 
+### Async
+
+* `Async` - run function in background goroutine and return result as a channel
+* `AsyncPipe` - run function in background, taking and returning values to pipe. Designed to be chained
+* `AsyncOut` - as `AsyncPipe` but takes output channel as argument
+* `AsyncIn` - converts value into channel with that value
 ### Math
 
 Not equivalent of `math` library, NaN math is ignored, zero length inputs might, sanitize your inputs.

@@ -86,3 +86,53 @@ func WorkerPoolFinisher[T1, T2 any](input chan T1, output chan T2, worker func(T
 	}()
 	return finisher
 }
+
+// WorkerPoolDrain runs function per input without returning anything. Goroutines close on channel close.
+// returns finish channel that returns single boolean true after goroutines finish
+func WorkerPoolDrain[T1 any](worker func(T1), concurrency int, input chan T1) (finish chan bool) {
+	finish = make(chan bool, 1)
+	go func() {
+		wg := sync.WaitGroup{}
+		wg.Add(concurrency)
+		for i := 0; i < concurrency; i++ {
+			go func() {
+				defer wg.Done()
+				for w := range input {
+					worker(w)
+				}
+			}()
+		}
+		wg.Wait()
+		finish <- true
+	}()
+	return finish
+}
+
+// WorkerPoolAsync returns a function that adds new job to queue and returns a channel with result, and function to stop worker
+func WorkerPoolAsync[T1, T2 any](worker func(T1) T2, concurrency int) (async func(T1) chan T2, stop func()) {
+	inCh := make(chan struct {
+		ReturnCh chan T2
+		Data     T1
+	}, concurrency/2+1)
+	finish := WorkerPoolDrain(func(in struct {
+		ReturnCh chan T2
+		Data     T1
+	}) {
+		in.ReturnCh <- worker(in.Data)
+	}, concurrency, inCh)
+
+	return func(in T1) (out chan T2) {
+			ch := make(chan T2, 1)
+			inCh <- struct {
+				ReturnCh chan T2
+				Data     T1
+			}{
+				ReturnCh: ch,
+				Data:     in,
+			}
+			return ch
+		}, func() {
+			close(inCh)
+			<-finish
+		}
+}

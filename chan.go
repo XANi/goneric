@@ -74,7 +74,7 @@ func SliceToChan[T any](in []T) chan T {
 	return out
 }
 
-// SliceToChan returns channel with background goroutine feeding it data from slice
+// SliceToChanClose returns channel with background goroutine feeding it data from slice
 // then closes the channel
 func SliceToChanClose[T any](in []T) chan T {
 	outCh := make(chan T, 1)

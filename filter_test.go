@@ -82,5 +82,4 @@ func TestFilterChanErr(t *testing.T) {
 	assert.Len(t, outErr, 2)
 	assert.Panics(t, func() { close(outCh) }, "make sure out channel is closed")
 	assert.Panics(t, func() { close(errCh) }, "make sure error channel is closed")
-
 }

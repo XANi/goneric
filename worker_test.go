@@ -1,9 +1,11 @@
 package goneric
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"strconv"
 	"testing"
+	"time"
 )
 
 func TestWorkerPool(t *testing.T) {
@@ -111,5 +113,56 @@ func TestWorkerPoolFinisher(t *testing.T) {
 		}, 0)
 	})
 	assert.Panics(t, func() { close(out) })
+}
 
+func TestWorkerPoolDrain(t *testing.T) {
+	c := make(chan func(), 1)
+	end := make(chan bool, 1)
+	finish := WorkerPoolDrain(func(f func()) { f() }, 4, c)
+	var a1, a2 int
+	c <- func() { a1 = 1 }
+	c <- func() { a2 = 2 }
+	c <- func() { end <- true }
+	close(c)
+	<-finish
+	time.Sleep(time.Millisecond * 10)
+	assert.True(t, <-end)
+	assert.Equal(t, 1, a1)
+	assert.Equal(t, 2, a2)
+}
+
+func TestWorkerPoolAsync(t *testing.T) {
+	async, finish := WorkerPoolAsync(func(i int) string { return strconv.Itoa(i) }, 2)
+	a1 := async(1)
+	a2 := async(2)
+	a3 := async(3)
+	a4 := async(4)
+	finish()
+	assert.Equal(t, "1", <-a1)
+	assert.Equal(t, "2", <-a2)
+	assert.Equal(t, "3", <-a3)
+	assert.Equal(t, "4", <-a4)
+
+}
+
+func ExampleWorkerPoolAsync() {
+	// make our worker with function to mangle data
+	async, finish := WorkerPoolAsync(
+		func(i int) string { return strconv.Itoa(i) },
+		2)
+	defer finish() // close the pool once we stop using it
+	// queue some jobs
+	job1 := async(1)
+	job2 := async(2)
+	job3 := async(3)
+	job4 := async(4)
+	// all of those jobs are running in background at this point
+	// now get results
+	fmt.Printf("%s %s %s %s",
+		<-job1,
+		<-job3,
+		<-job2,
+		<-job4,
+	)
+	//Output: 1 3 2 4
 }

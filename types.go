@@ -11,3 +11,15 @@ type Number interface {
 		~uint64 | ~uint32 | ~uint16 | ~uint8 |
 		~float64 | ~float32
 }
+
+// ValueIndex contains value with source index for ordered operation
+type ValueIndex[V any] struct {
+	V   V
+	IDX int
+}
+
+// Response is used to pass data and channel to return value to worker
+type Response[DataT, ReturnT any] struct {
+	ReturnCh chan ReturnT
+	Data     DataT
+}

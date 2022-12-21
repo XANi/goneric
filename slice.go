@@ -102,7 +102,7 @@ func SliceDiff[T comparable](v1 []T, v2 []T) (inLeft []T, inRight []T) {
 // returns slice of elements that are only in first/left element
 // and ones that are only in right element.
 // Duplicates are ignored.
-//([]T1,[]T2) -> (leftOnly []T1, rightOnly []T2)
+//([]DataT,[]ReturnT) -> (leftOnly []DataT, rightOnly []ReturnT)
 func SliceDiffFunc[T1 any, T2 any, Z comparable](
 	v1 []T1,
 	v2 []T2,

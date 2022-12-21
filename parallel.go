@@ -14,54 +14,33 @@ func ParallelMap[T1, T2 any](mapFunc func(T1) T2, concurrency int, slice ...T1) 
 // Order of elements in slice is kept
 func ParallelMapSlice[T1, T2 any](mapFunc func(T1) T2, concurrency int, slice []T1) []T2 {
 	out := make([]T2, len(slice))
-	inCh := make(chan struct {
-		V   T1
-		idx int
-	}, concurrency/2+1) // TODO check whether size matters here for anything
-	outCh := make(chan struct {
-		V   T2
-		idx int
-	}, concurrency/2+1) // we're just guessing here that having open slot in channel is good for performance, test that
+	inCh := make(chan ValueIndex[T1], concurrency/2+1)  // TODO check whether size matters here for anything
+	outCh := make(chan ValueIndex[T2], concurrency/2+1) // we're just guessing here that having open slot in channel is good for performance, test that
 
 	wg := sync.WaitGroup{}
 	wg.Add(2)
 	go func() {
 		defer wg.Done()
 		for v := range outCh {
-			out[v.idx] = v.V
+			out[v.IDX] = v.V
 		}
 	}()
-	// Go Generic Gymnastics.
-	// We can't generate named types here (as of 1.19)
-	// so we have to do with anonymous ones
 	go func() {
 		defer wg.Done()
 		WorkerPoolClose(
 			inCh,
 			outCh,
-			func(i struct {
-				V   T1
-				idx int
-			}) struct {
-				V   T2
-				idx int
-			} {
-				return struct {
-					V   T2
-					idx int
-				}{
+			func(i ValueIndex[T1]) ValueIndex[T2] {
+				return ValueIndex[T2]{
 					V:   mapFunc(i.V),
-					idx: i.idx,
+					IDX: i.IDX,
 				}
 
 			},
 			concurrency)
 	}()
 	for idx, v := range slice {
-		inCh <- struct {
-			V   T1
-			idx int
-		}{V: v, idx: idx}
+		inCh <- ValueIndex[T1]{V: v, IDX: idx}
 	}
 	close(inCh)
 	wg.Wait()

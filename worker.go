@@ -110,23 +110,14 @@ func WorkerPoolDrain[T1 any](worker func(T1), concurrency int, input chan T1) (f
 
 // WorkerPoolAsync returns a function that adds new job to queue and returns a channel with result, and function to stop worker
 func WorkerPoolAsync[T1, T2 any](worker func(T1) T2, concurrency int) (async func(T1) chan T2, stop func()) {
-	inCh := make(chan struct {
-		ReturnCh chan T2
-		Data     T1
-	}, concurrency/2+1)
-	finish := WorkerPoolDrain(func(in struct {
-		ReturnCh chan T2
-		Data     T1
-	}) {
+	inCh := make(chan Response[T1, T2], concurrency/2+1)
+	finish := WorkerPoolDrain(func(in Response[T1, T2]) {
 		in.ReturnCh <- worker(in.Data)
 	}, concurrency, inCh)
 
 	return func(in T1) (out chan T2) {
 			ch := make(chan T2, 1)
-			inCh <- struct {
-				ReturnCh chan T2
-				Data     T1
-			}{
+			inCh <- Response[T1, T2]{
 				ReturnCh: ch,
 				Data:     in,
 			}

@@ -1,6 +1,9 @@
 package goneric
 
-import "sync"
+import (
+	"sync"
+	"time"
+)
 
 //ChanGen generates a channel that is fed from function results
 func ChanGen[T any](genFunc func() T) chan T {
@@ -61,6 +64,26 @@ func ChanToSliceN[T any](inCh chan T, n int) []T {
 		}
 	}
 	return s
+}
+
+//ChanToSliceNTimeout loads up to n elements from to slice to channel or up until timeout expires
+func ChanToSliceNTimeout[T any](inCh chan T, n int, timeout time.Duration) []T {
+	s := make([]T, 0)
+	idx := 0
+	t := time.After(timeout)
+	for {
+		select {
+		case <-t:
+			return s
+		case v := <-inCh:
+			s = append(s, v)
+			idx++
+			if idx >= n {
+				return s
+			}
+		}
+	}
+
 }
 
 // SliceToChan returns channel with background goroutine feeding it data from slice

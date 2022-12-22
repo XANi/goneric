@@ -142,3 +142,28 @@ func SliceIn[T comparable](slice []T, contains T) bool {
 	}
 	return false
 }
+
+//SliceDedupe removes duplicates
+func SliceDedupe[T comparable](slice []T) (out []T) {
+	presence := make(map[T]bool, 0)
+	for _, v := range slice {
+		if _, ok := presence[v]; !ok {
+			presence[v] = true
+			out = append(out, v)
+		}
+	}
+	return out
+}
+
+//SliceDedupeFunc removes duplicates with function to convert the value to comparable
+func SliceDedupeFunc[T any, C comparable](slice []T, convert func(T) C) (out []T) {
+	presence := make(map[C]bool, 0)
+	for _, v := range slice {
+		c := convert(v)
+		if _, ok := presence[c]; !ok {
+			presence[c] = true
+			out = append(out, v)
+		}
+	}
+	return out
+}

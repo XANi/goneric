@@ -97,8 +97,7 @@ func MapSliceValue[K comparable, V any](in map[K]V) (out []V) {
 	return out
 }
 
-// MapToSlice converts map into slice
-
+// MapToSlice converts map into slice via specified function
 func MapToSlice[K1 comparable, V any, V2 any](f func(k K1, v V) V2, in map[K1]V) (out []V2) {
 	out = make([]V2, len(in))
 	i := 0

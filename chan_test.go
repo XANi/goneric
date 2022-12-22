@@ -18,6 +18,12 @@ func (c *ctr) Counter() int {
 	return c.i
 }
 
+func (c *ctr) SleepyCounter(t time.Duration) int {
+	c.i++
+	time.Sleep(t)
+	return c.i
+}
+
 func TestChanGen(t *testing.T) {
 	f := ctr{}
 	ch := ChanGen(f.Counter)
@@ -79,7 +85,17 @@ func TestChanToSliceN(t *testing.T) {
 	close(ch2)
 	wg2.Wait()
 	assert.Equal(t, []int{1}, sl2)
+}
 
+func TestChanToSliceNTimeout(t *testing.T) {
+	f1 := ctr{}
+	chGen1 := ChanGen(func() int { return f1.SleepyCounter(time.Millisecond * 100) })
+	out1 := ChanToSliceNTimeout(chGen1, 10, time.Millisecond*350)
+	assert.Equal(t, []int{1, 2, 3}, out1)
+	f2 := ctr{}
+	chGen2 := ChanGen(func() int { return f2.SleepyCounter(time.Millisecond) })
+	out2 := ChanToSliceNTimeout(chGen2, 10, time.Millisecond*350)
+	assert.Equal(t, []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, out2)
 }
 
 func TestSliceToChan(t *testing.T) {

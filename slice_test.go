@@ -224,3 +224,36 @@ func TestSliceIn(t *testing.T) {
 		[]Comparable{{Name: "t1"}, {Name: "t2"}},
 		Comparable{Name: "t0"}))
 }
+
+type incomparable struct {
+	v []int
+}
+
+func TestSliceDedupe(t *testing.T) {
+
+	assert.Equal(t, []int{1, 2, 3, 4}, SliceDedupe([]int{1, 2, 3, 2, 1, 4, 3, 4}))
+
+}
+
+func TestSliceDedupeFunc(t *testing.T) {
+	assert.Equal(t,
+		[]incomparable{
+			{v: []int{1, 2}},
+			{v: []int{2, 4}},
+			{v: []int{4, 2, 1}},
+			{v: []int{1, 3}},
+		},
+		SliceDedupeFunc(
+			[]incomparable{
+				{v: []int{1, 2}},
+				{v: []int{2, 4}},
+				{v: []int{4, 2, 1}},
+				{v: []int{1, 3}},
+				{v: []int{4, 2, 1}},
+				{v: []int{1, 2}},
+			},
+			func(in incomparable) string {
+				return fmt.Sprintf("%+v", in)
+			},
+		))
+}

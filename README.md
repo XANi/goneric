@@ -34,6 +34,8 @@ If possible,sensible, functions that take function parameter should have functio
 * `SliceDiffFunc`  - As `SliceDiff` but type of slice is irrelevant, via use of conversion function that converts it
    into comparable type. `([]T1,[]T2) -> (leftOnly []T1, rightOnly []T2)`
 * `SliceIn` - Check whether value is in slice
+* `SliceDedupe` - remove duplicates from `comparable` slice
+* `SliceDedupeFunc` - remove duplicates from `any` slice via conversion function
 
 ### Map
 
@@ -59,8 +61,9 @@ If possible,sensible, functions that take function parameter should have functio
 * `ChanGenCloser` - Use function to generate channel messages, stop when closer function is called
 * `ChanToSlice` - Loads data to slice from channel until channel is closed
 * `ChanToSliceN` - Loads data to slice from channel to at most N elements
-* `SliceToChan` - Sends slice to channel
-* `SliceToChanClose` - Sends slice to channel, then closes it.
+* `ChanToSliceNTimeout` - Loads data to slice from channel to at most N elements or until timeout passes
+* `SliceToChan` - Sends slice to channel in background
+* `SliceToChanClose` - Sends slice to channel in background, then closes it.
 
 ### Worker
 

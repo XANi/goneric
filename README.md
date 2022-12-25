@@ -90,6 +90,19 @@ If possible,sensible, functions that take function parameter should have functio
 * `AsyncPipe` - run function in background, taking and returning values to pipe. Designed to be chained
 * `AsyncOut` - as `AsyncPipe` but takes output channel as argument
 * `AsyncIn` - converts value into channel with that value
+
+### (Re)Try
+
+* `Retry` - retry function X times
+* `RetryAfter` - retry with timeout, minimal, and maximal interval between retries.
+* `Try` - tries each function in slice till first success
+
+### Generators
+
+* `GenSlice` - generate slice of given length via function
+* `GenMap` - generate Map of given length via function
+
+
 ### Math
 
 Not equivalent of `math` library, NaN math is ignored, zero length inputs might, sanitize your inputs.

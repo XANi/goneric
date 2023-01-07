@@ -19,8 +19,9 @@ func MapSlice[T1, T2 any](mapFunc func(v T1) T2, slice []T1) []T2 {
 	return out
 }
 
-// MapSliceErr maps the list of variadic(...) values via function. and propagates the error
-// Returns slice with elements that didn't return error
+// MapErr maps the list of variadic(...) values via function. and returns on first error
+// Returns slice with elements that didn't return error before the failure
+// so index of the first element in error is essentially `slice[len(out)]`
 func MapErr[T1, T2 any](mapFunc func(v T1) (T2, error), slice ...T1) (out []T2, err error) {
 	out = make([]T2, len(slice))
 	for idx, v := range slice {
@@ -59,6 +60,7 @@ func MapSliceSkip[T1, T2 any](mapFunc func(v T1) (T2, bool), slice []T1) (out []
 }
 
 // MapSliceErrSkip maps slice using provided function, allowing to skip entries by returning ErrSkip
+// Returns on first non `ErrSkip` error
 func MapSliceErrSkip[T1, T2 any](mapFunc func(v T1) (T2, error), slice []T1) (out []T2, err error) {
 	out = make([]T2, 0)
 	for _, v := range slice {

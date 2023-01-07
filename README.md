@@ -18,7 +18,9 @@ because `m["nonexistent_key"] == false`
 Naming function goes in order of `operation_group`, `input type`, `modifier`/`output` with ones irrelevant skipped.
 There are few exceptions for convenience, like variadic `Map`.
 
-If possible,sensible, functions that take function parameter should have function as first parameter
+If possible,sensible, functions that take function parameter should have function as first parameter.
+
+Channel-operating function *in general* should accept channel as parameter; the ones returning a channel should be under `Gen*` hierarchy
 
 
 ## Functions
@@ -57,13 +59,15 @@ If possible,sensible, functions that take function parameter should have functio
 
 ### Channel tools
 
-* `ChanGen` - Uses function to generate channel messages
+* `ChanGen` - Feed function output to channel in a loop
+* `ChanGenN` - Feed function output to channel in a loop N times
+* `ChanGenNClose` - Feed function output to channel in a loop N times then close it
 * `ChanGenCloser` - Use function to generate channel messages, stop when closer function is called
 * `ChanToSlice` - Loads data to slice from channel until channel is closed
 * `ChanToSliceN` - Loads data to slice from channel to at most N elements
 * `ChanToSliceNTimeout` - Loads data to slice from channel to at most N elements or until timeout passes
-* `SliceToChan` - Sends slice to channel in background
-* `SliceToChanClose` - Sends slice to channel in background, then closes it.
+* `SliceToChan` - Sends slice to passed channel in background
+* `SliceToChanClose` - Sends slice to passed channel in background, then closes it.
 
 ### Worker
 
@@ -99,8 +103,17 @@ If possible,sensible, functions that take function parameter should have functio
 
 ### Generators
 
+Generator functions always return generated values. 
+For ones that operate on passed on types look at `Type*` functions like `SliceGen`
+
 * `GenSlice` - generate slice of given length via function
 * `GenMap` - generate Map of given length via function
+* `GenChan` - returns channel fed from generator function ad infinitum
+* `GenChanN` - returns channel fed from generator function N times
+* `GenChanNClose` - returns channel fed from generator function N times then closes it
+* `GenChanNCloser` - returns channel fed from generator that returns closer() function that will stop generator from running,
+* `GenSliceToChan` - returns channel fed from slice
+* `GenSliceToChanClose` - returns channel fed from slice that is then closed
 
 
 ### Math

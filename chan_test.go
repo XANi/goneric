@@ -1,53 +1,11 @@
 package goneric
 
 import (
-	"fmt"
 	"github.com/stretchr/testify/assert"
-	"math/rand"
 	"sync"
 	"testing"
 	"time"
 )
-
-type ctr struct {
-	i int
-}
-
-func (c *ctr) Counter() int {
-	c.i++
-	return c.i
-}
-
-func (c *ctr) SleepyCounter(t time.Duration) int {
-	c.i++
-	time.Sleep(t)
-	return c.i
-}
-
-func TestChanGen(t *testing.T) {
-	f := ctr{}
-	ch := ChanGen(f.Counter)
-	a := <-ch
-	b := <-ch
-	c := <-ch
-	d := <-ch
-	assert.Equal(t, []int{1, 2, 3, 4}, []int{a, b, c, d})
-}
-
-func TestChanGenCloser(t *testing.T) {
-	f := ctr{}
-	ch, cl := ChanGenCloser(f.Counter)
-	_ = <-ch
-	cl()
-	// first one after channel drains
-	_ = <-ch
-	// next one for loop iteration to get to the exit check
-	_ = <-ch
-	// this one should be empty
-	d := <-ch
-	assert.NotEqual(t, 4, d)
-	assert.Panics(t, func() { close(ch) }, "make sure out channel is closed")
-}
 
 func TestChanToSlice(t *testing.T) {
 	ch := make(chan int, 5)
@@ -69,7 +27,7 @@ func TestChanToSlice(t *testing.T) {
 
 func TestChanToSliceN(t *testing.T) {
 	f := ctr{}
-	chGen := ChanGen(f.Counter)
+	chGen := GenChan(f.Counter)
 	sl := ChanToSliceN(chGen, 10)
 	assert.Equal(t, 55, Sum(sl...))
 	assert.Len(t, sl, 10)
@@ -89,18 +47,19 @@ func TestChanToSliceN(t *testing.T) {
 
 func TestChanToSliceNTimeout(t *testing.T) {
 	f1 := ctr{}
-	chGen1 := ChanGen(func() int { return f1.SleepyCounter(time.Millisecond * 100) })
+	chGen1 := GenChan(func() int { return f1.SleepyCounter(time.Millisecond * 100) })
 	out1 := ChanToSliceNTimeout(chGen1, 10, time.Millisecond*350)
 	assert.Equal(t, []int{1, 2, 3}, out1)
 	f2 := ctr{}
-	chGen2 := ChanGen(func() int { return f2.SleepyCounter(time.Millisecond) })
+	chGen2 := GenChan(func() int { return f2.SleepyCounter(time.Millisecond) })
 	out2 := ChanToSliceNTimeout(chGen2, 10, time.Millisecond*350)
 	assert.Equal(t, []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, out2)
 }
 
 func TestSliceToChan(t *testing.T) {
 	data := []int{6, 5, 3, 8}
-	ch := SliceToChan(data)
+	ch := make(chan int, 1)
+	SliceToChan(data, ch)
 	out := ChanToSliceN(ch, len(data))
 	assert.Equal(t, data, out)
 	assert.NotPanics(t, func() { close(ch) }, "make sure out channel is open")
@@ -108,25 +67,9 @@ func TestSliceToChan(t *testing.T) {
 
 func TestSliceToChanClose(t *testing.T) {
 	data := []int{6, 5, 3, 8}
-	ch := SliceToChanClose(data)
+	ch := make(chan int, 1)
+	SliceToChanClose(data, ch)
 	out := ChanToSlice(ch)
 	assert.Equal(t, data, out)
 	assert.Panics(t, func() { close(ch) }, "make sure out channel is closed")
-}
-
-func ExampleSliceToChanClose() {
-	// jobs to do
-	input := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	output := ChanToSlice( // make slice out of channel
-		WorkerPoolBackgroundClose( // that we got out of worker
-			SliceToChanClose(input), // that got fed input from slice via channel
-			func(v int) float64 {
-				// pretend we have some work
-				time.Sleep(time.Millisecond*20 + time.Duration(rand.Int31n(20)))
-				return float64(v) * 1.5
-			},
-			16, // in parallel
-		))
-	fmt.Printf("%+v->(1.5x)->%+v", Sum(input...), Sum(output...))
-	// Output: 55->(1.5x)->82.5
 }

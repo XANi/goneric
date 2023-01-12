@@ -16,30 +16,21 @@ func ChanGen[T any](genFunc func() T, ch chan T) {
 // ChanGenN runs function n times and sends the result to the provided channel
 // resulting channel will be sent `true` when the function finishes last send
 // Function gets id of element starting from 0.
-func ChanGenN[T any](count int, genFunc func(idx int) T, ch chan T) (finished chan bool) {
+// setting optional argument to true will close the channel after finishing
+func ChanGenN[T any](count int, genFunc func(idx int) T, out chan T, closeOutputChan ...bool) (finished chan bool) {
 	// we take channel as argument instead of returning channel for more flexibility
 	finished = make(chan bool, 1)
 	go func() {
 		for i := 0; i < count; i++ {
-			ch <- genFunc(i)
+			out <- genFunc(i)
+		}
+		if len(closeOutputChan) > 0 && closeOutputChan[0] {
+			close(out)
 		}
 		finished <- true
 
 	}()
 	return finished
-}
-
-// ChanGenNClose generates channel that will run function n times and send result to channel, then close it
-// Function gets id of element starting from 0.
-func ChanGenNClose[T any](count int, genFunc func(idx int) T, ch chan T) {
-	// we take channel as argument instead of returning channel for more flexibility
-	go func() {
-		for i := 0; i < count; i++ {
-			ch <- genFunc(i)
-		}
-		close(ch)
-	}()
-	return
 }
 
 // ChanGenCloser generates a channel that is fed from function results. Running closer func will stop it.

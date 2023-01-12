@@ -7,7 +7,8 @@ import (
 // WorkerPool spawns `concurrency` goroutines eating from input channel and sending it to output channel
 // caller should take care of closing input channel after it finished sending requests
 // output channel will be closed after input is processed and closed
-func WorkerPool[T1, T2 any](input chan T1, output chan T2, worker func(T1) T2, concurrency int) {
+// optionally setting last option to true will make it close output channel
+func WorkerPool[T1, T2 any](input chan T1, output chan T2, worker func(T1) T2, concurrency int, closeOutputChan ...bool) {
 	if concurrency < 1 {
 		panic("RTFM")
 	}
@@ -22,18 +23,14 @@ func WorkerPool[T1, T2 any](input chan T1, output chan T2, worker func(T1) T2, c
 		}()
 	}
 	wg.Wait()
-}
-
-// WorkerPoolClose spawns `concurrency` goroutines eating from input channel and sending it to output channel
-// caller should take care of closing input channel after it finished sending requests
-// output channel will be closed after input is processed and closed
-func WorkerPoolClose[T1, T2 any](input chan T1, output chan T2, worker func(T1) T2, concurrency int) {
-	WorkerPool(input, output, worker, concurrency)
-	close(output)
+	if len(closeOutputChan) > 0 && closeOutputChan[0] {
+		close(output)
+	}
 }
 
 // WorkerPoolBackground spawns `concurrency` goroutines eating from input channel and returns output channel with results
-func WorkerPoolBackground[T1, T2 any](input chan T1, worker func(T1) T2, concurrency int) (output chan T2) {
+// optionally setting last option to true will make it close output channel
+func WorkerPoolBackground[T1, T2 any](input chan T1, worker func(T1) T2, concurrency int, closeOutputChan ...bool) (output chan T2) {
 	if concurrency < 1 {
 		panic("RTFM")
 	}
@@ -48,30 +45,12 @@ func WorkerPoolBackground[T1, T2 any](input chan T1, worker func(T1) T2, concurr
 			}
 		}()
 	}
-	return output
-}
-
-// WorkerPoolBackgroundClose spawns `concurrency` goroutines eating from input channel and returns output channel with results
-// output channel will be closed after input is procesed and closed
-func WorkerPoolBackgroundClose[T1, T2 any](input chan T1, worker func(T1) T2, concurrency int) (output chan T2) {
-	if concurrency < 1 {
-		panic("RTFM")
-	}
-	output = make(chan T2, concurrency/2+1)
-	wg := sync.WaitGroup{}
-	wg.Add(concurrency)
-	for i := 0; i < concurrency; i++ {
+	if len(closeOutputChan) > 0 && closeOutputChan[0] {
 		go func() {
-			defer wg.Done()
-			for w := range input {
-				output <- worker(w)
-			}
+			wg.Wait()
+			close(output)
 		}()
 	}
-	go func() {
-		wg.Wait()
-		close(output)
-	}()
 	return output
 }
 
@@ -80,7 +59,7 @@ func WorkerPoolBackgroundClose[T1, T2 any](input chan T1, worker func(T1) T2, co
 func WorkerPoolFinisher[T1, T2 any](input chan T1, output chan T2, worker func(T1) T2, concurrency int) chan bool {
 	finisher := make(chan bool, 1)
 	go func() {
-		WorkerPoolClose(input, output, worker, concurrency)
+		WorkerPool(input, output, worker, concurrency, true)
 		finisher <- true
 		close(finisher)
 	}()

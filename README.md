@@ -16,9 +16,10 @@ Functions returning stuff like `map[key]boolean` (using map as set) set the bool
 because `m["nonexistent_key"] == false`
 
 Naming function goes in order of `operation_group`, `input type`, `modifier`/`output` with ones irrelevant skipped.
+Functions where it is sensible to have option to close channel should have that as last optional argument.
 There are few exceptions for convenience, like variadic `Map`.
 
-If possible,sensible, functions that take function parameter should have function as first parameter.
+If possible, sensible, functions that take function parameter should have function as first parameter.
 
 Channel-operating function *in general* should accept channel as parameter; the ones returning a channel should be under `Gen*` hierarchy
 
@@ -60,22 +61,17 @@ Channel-operating function *in general* should accept channel as parameter; the 
 ### Channel tools
 
 * `ChanGen` - Feed function output to channel in a loop
-* `ChanGenN` - Feed function output to channel in a loop N times
-* `ChanGenNClose` - Feed function output to channel in a loop N times then close it
+* `ChanGenN` - Feed function output to channel in a loop N times, optionally close it
 * `ChanGenCloser` - Use function to generate channel messages, stop when closer function is called
 * `ChanToSlice` - Loads data to slice from channel until channel is closed
 * `ChanToSliceN` - Loads data to slice from channel to at most N elements
 * `ChanToSliceNTimeout` - Loads data to slice from channel to at most N elements or until timeout passes
-* `SliceToChan` - Sends slice to passed channel in background
-* `SliceToChanClose` - Sends slice to passed channel in background, then closes it.
+* `SliceToChan` - Sends slice to passed channel in background, optionally closes it
 
 ### Worker
 
-* `WorkerPool` - spawn x goroutines with workers and return after input channel is closed and all requests are parsed
-* `WorkerPoolClose` - spawn x goroutines with workers and return after input channel is closed and all requests are parsed. Also close output channel
-* `WorkerPoolBackground` - spawn x goroutines with workers in background and returns output channel
-* `WorkerPoolBackgroundClose` - spawn x goroutines with workers in background and returns output channel. 
-   Close output channel if input channel is closed, after processing all messages
+* `WorkerPool` - spawn x goroutines with workers and return after input channel is closed and all requests are parsed. Optionally close output
+* `WorkerPoolBackground` - spawn x goroutines with workers in background and returns output channel. Optionally close output.
 * `WorkerPoolFinisher` - spawn x goroutines with workers in background, returns finisher channel that signals with `bool{true}` when the processing ends.
 * `WorkerPoolDrain` - spawn x goroutines that will run a function on the channel element without returning anything
 * `WorkerPoolAsync` - function will run x goroutines for worker in the background and return a function that enqueues job and returns channel with result of that job, allowing to queue stuff to run in background conveniently
@@ -112,10 +108,8 @@ For ones that operate on passed on types look at `Type*` functions like `SliceGe
 * `GenMap` - generate Map of given length via function
 * `GenChan` - returns channel fed from generator function ad infinitum
 * `GenChanN` - returns channel fed from generator function N times
-* `GenChanNClose` - returns channel fed from generator function N times then closes it
 * `GenChanNCloser` - returns channel fed from generator that returns closer() function that will stop generator from running,
-* `GenSliceToChan` - returns channel fed from slice
-* `GenSliceToChanClose` - returns channel fed from slice that is then closed
+* `GenSliceToChan` - returns channel fed from slice, optionally closes it
 
 
 ### Math

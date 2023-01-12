@@ -3,39 +3,67 @@ package goneric
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"sort"
 	"strconv"
 	"testing"
 	"time"
 )
 
 func TestWorkerPool(t *testing.T) {
-	in := make(chan int, 1)
-	out := make(chan string, 2)
-	go func() {
-		for i := 0; i < 32; i++ {
-			in <- i
+	t.Run("chan open", func(t *testing.T) {
+
+		in := make(chan int, 1)
+		out := make(chan string, 2)
+		go func() {
+			for i := 0; i < 32; i++ {
+				in <- i
+			}
+			close(in)
+		}()
+		go func() {
+			WorkerPool(in, out, func(i int) string {
+				return strconv.Itoa(i)
+			}, 4, true)
+		}()
+
+		outSlice := []string{}
+		for o := range out {
+			outSlice = append(outSlice, o)
 		}
-		close(in)
-	}()
-	go func() {
-		WorkerPoolClose(in, out, func(i int) string {
+		assert.True(t, CompareSliceSet(
+			[]string{"0", "1", "2", "4", "5", "6", "7", "3", "8", "9", "10", "11", "12", "13", "16", "14", "17", "18", "19", "15", "20", "21", "22", "25", "26", "27", "28", "23", "24", "29", "30", "31"},
+			outSlice))
+		assert.Panics(t, func() {
+			WorkerPool(in, out, func(i int) string {
+				return strconv.Itoa(i)
+			}, 0)
+		})
+
+	})
+	t.Run("chan closed", func(t *testing.T) {
+
+		in := make(chan int, 1)
+		go func() {
+			for i := 0; i < 32; i++ {
+				in <- i
+			}
+			close(in)
+		}()
+		out := WorkerPoolBackground(in, func(i int) string {
 			return strconv.Itoa(i)
 		}, 4)
-	}()
 
-	outSlice := []string{}
-	for o := range out {
-		outSlice = append(outSlice, o)
-	}
-	assert.True(t, CompareSliceSet(
-		[]string{"0", "1", "2", "4", "5", "6", "7", "3", "8", "9", "10", "11", "12", "13", "16", "14", "17", "18", "19", "15", "20", "21", "22", "25", "26", "27", "28", "23", "24", "29", "30", "31"},
-		outSlice))
-	assert.Panics(t, func() {
-		WorkerPool(in, out, func(i int) string {
-			return strconv.Itoa(i)
-		}, 0)
+		outSlice := ChanToSliceN(out, 32)
+		assert.True(t, CompareSliceSet(
+			[]string{"0", "1", "2", "4", "5", "6", "7", "3", "8", "9", "10", "11", "12", "13", "16", "14", "17", "18", "19", "15", "20", "21", "22", "25", "26", "27", "28", "23", "24", "29", "30", "31"},
+			outSlice))
+		assert.Panics(t, func() {
+			WorkerPoolBackground(in, func(i int) string {
+				return strconv.Itoa(i)
+			}, 0)
+		})
+
 	})
-
 }
 
 func TestWorkerPoolBackground(t *testing.T) {
@@ -48,40 +76,16 @@ func TestWorkerPoolBackground(t *testing.T) {
 	}()
 	out := WorkerPoolBackground(in, func(i int) string {
 		return strconv.Itoa(i)
-	}, 4)
-
-	outSlice := ChanToSliceN(out, 32)
-	assert.True(t, CompareSliceSet(
-		[]string{"0", "1", "2", "4", "5", "6", "7", "3", "8", "9", "10", "11", "12", "13", "16", "14", "17", "18", "19", "15", "20", "21", "22", "25", "26", "27", "28", "23", "24", "29", "30", "31"},
-		outSlice))
-	assert.Panics(t, func() {
-		WorkerPoolBackground(in, func(i int) string {
-			return strconv.Itoa(i)
-		}, 0)
-	})
-
-}
-
-func TestWorkerPoolBackgroundClose(t *testing.T) {
-	in := make(chan int, 1)
-	go func() {
-		for i := 0; i < 32; i++ {
-			in <- i
-		}
-		close(in)
-	}()
-	out := WorkerPoolBackgroundClose(in, func(i int) string {
-		return strconv.Itoa(i)
-	}, 4)
+	}, 4, true)
 
 	outSlice := ChanToSlice(out)
 	assert.True(t, CompareSliceSet(
 		[]string{"0", "1", "2", "4", "5", "6", "7", "3", "8", "9", "10", "11", "12", "13", "16", "14", "17", "18", "19", "15", "20", "21", "22", "25", "26", "27", "28", "23", "24", "29", "30", "31"},
 		outSlice))
 	assert.Panics(t, func() {
-		WorkerPoolBackgroundClose(in, func(i int) string {
+		WorkerPoolBackground(in, func(i int) string {
 			return strconv.Itoa(i)
-		}, 0)
+		}, 0, true)
 	})
 
 }
@@ -165,4 +169,23 @@ func ExampleWorkerPoolAsync() {
 		<-job4,
 	)
 	//Output: 1 3 2 4
+}
+
+func ExampleWorkerPoolBackground() {
+	out :=
+		WorkerPoolBackground(
+			WorkerPoolBackground(
+				WorkerPoolBackground(
+					GenChanN(func(idx int) int { return idx + 1 }, 3, true),
+					func(i int) string { return strconv.Itoa(i) },
+					4, true),
+				func(s string) string { return ">" + s },
+				5, true,
+			),
+			func(s string) string { return " |" + s },
+			6, true)
+	sliceOut := ChanToSlice(out)
+	sort.Slice(sliceOut, func(i, j int) bool { return sliceOut[i] < sliceOut[j] })
+	fmt.Printf("%v", sliceOut)
+	// output: [ |>1  |>2  |>3]
 }

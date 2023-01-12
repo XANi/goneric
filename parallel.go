@@ -27,7 +27,7 @@ func ParallelMapSlice[T1, T2 any](mapFunc func(T1) T2, concurrency int, slice []
 	}()
 	go func() {
 		defer wg.Done()
-		WorkerPoolClose(
+		WorkerPool(
 			inCh,
 			outCh,
 			func(i ValueIndex[T1]) ValueIndex[T2] {
@@ -37,7 +37,7 @@ func ParallelMapSlice[T1, T2 any](mapFunc func(T1) T2, concurrency int, slice []
 				}
 
 			},
-			concurrency)
+			concurrency, true)
 	}()
 	for idx, v := range slice {
 		inCh <- ValueIndex[T1]{V: v, IDX: idx}
@@ -60,7 +60,7 @@ func ParallelMapSliceChan[T1, T2 any](mapFunc func(T1) T2, concurrency int, slic
 		close(in)
 	}()
 	go func() {
-		WorkerPoolClose(in, out, mapFunc, concurrency)
+		WorkerPool(in, out, mapFunc, concurrency, true)
 	}()
 
 	return out
@@ -81,7 +81,7 @@ func ParallelMapSliceChanFinisher[T1, T2 any](mapFunc func(T1) T2, concurrency i
 		close(in)
 	}()
 	go func() {
-		WorkerPoolClose(in, out, mapFunc, concurrency)
+		WorkerPool(in, out, mapFunc, concurrency, true)
 		finisher <- true
 		close(finisher)
 	}()

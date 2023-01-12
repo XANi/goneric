@@ -18,42 +18,44 @@ func TestChanGen(t *testing.T) {
 }
 
 func TestChanGenN(t *testing.T) {
-	ch := make(chan int, 1)
-	ChanGenN(3, func(i int) int { return i + 1 }, ch)
-	a := <-ch
-	b := <-ch
-	c := <-ch
-	var d int
-	select {
-	case d = <-ch:
-	case <-time.After(time.Millisecond * 20):
-	}
-
-	assert.Equal(t, []int{1, 2, 3, 0}, []int{a, b, c, d})
-}
-
-func TestChanGenNClose(t *testing.T) {
-	ch := make(chan int, 1)
-	ChanGenNClose(3, func(i int) int { return i + 1 }, ch)
-	data := make([]int, 0)
-	idx := 0
-O:
-	for {
-		idx++
+	t.Run("chan open", func(t *testing.T) {
+		ch := make(chan int, 1)
+		ChanGenN(3, func(i int) int { return i + 1 }, ch)
+		a := <-ch
+		b := <-ch
+		c := <-ch
+		var d int
 		select {
-		case v := <-ch:
-			data = append(data, v)
+		case d = <-ch:
 		case <-time.After(time.Millisecond * 20):
-			break O
 		}
-		if idx > 3 {
-			break
-		}
-	}
 
-	assert.Equal(t, []int{1, 2, 3, 0}, data)
+		assert.Equal(t, []int{1, 2, 3, 0}, []int{a, b, c, d})
+	})
+	t.Run("chan close", func(t *testing.T) {
+
+		ch := make(chan int, 1)
+		ChanGenN(3, func(i int) int { return i + 1 }, ch, true)
+		data := make([]int, 0)
+		idx := 0
+	O:
+		for {
+			idx++
+			select {
+			case v := <-ch:
+				data = append(data, v)
+			case <-time.After(time.Millisecond * 20):
+				break O
+			}
+			if idx > 3 {
+				break
+			}
+		}
+
+		assert.Equal(t, []int{1, 2, 3, 0}, data)
+
+	})
 }
-
 func TestChanGenCloser(t *testing.T) {
 	t.Run("with closing output channel", func(t *testing.T) {
 		f := ctr{}

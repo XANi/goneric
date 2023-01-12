@@ -48,21 +48,14 @@ func ChanToSliceNTimeout[T any](inCh chan T, n int, timeout time.Duration) []T {
 }
 
 // SliceToChan feeds slice to channel
-func SliceToChan[T any](in []T, out chan T) {
+func SliceToChan[T any](in []T, out chan T, closeOutputChan ...bool) {
 	go func() {
 		for _, v := range in {
 			out <- v
 		}
+		if len(closeOutputChan) > 0 && closeOutputChan[0] {
+			close(out)
+		}
 	}()
 	return
-}
-
-// SliceToChanClose feeds the data from slice to channel then closes the channel
-func SliceToChanClose[T any](in []T, outCh chan T) {
-	go func() {
-		for _, v := range in {
-			outCh <- v
-		}
-		close(outCh)
-	}()
 }

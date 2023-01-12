@@ -58,18 +58,18 @@ func TestChanToSliceNTimeout(t *testing.T) {
 
 func TestSliceToChan(t *testing.T) {
 	data := []int{6, 5, 3, 8}
-	ch := make(chan int, 1)
-	SliceToChan(data, ch)
-	out := ChanToSliceN(ch, len(data))
-	assert.Equal(t, data, out)
-	assert.NotPanics(t, func() { close(ch) }, "make sure out channel is open")
-}
-
-func TestSliceToChanClose(t *testing.T) {
-	data := []int{6, 5, 3, 8}
-	ch := make(chan int, 1)
-	SliceToChanClose(data, ch)
-	out := ChanToSlice(ch)
-	assert.Equal(t, data, out)
-	assert.Panics(t, func() { close(ch) }, "make sure out channel is closed")
+	t.Run("chan open", func(t *testing.T) {
+		ch := make(chan int, 1)
+		SliceToChan(data, ch)
+		out := ChanToSliceN(ch, len(data))
+		assert.Equal(t, data, out)
+		assert.NotPanics(t, func() { close(ch) }, "make sure out channel is open")
+	})
+	t.Run("chan close", func(t *testing.T) {
+		ch := make(chan int, 1)
+		SliceToChan(data, ch, true)
+		out := ChanToSlice(ch)
+		assert.Equal(t, data, out)
+		assert.Panics(t, func() { close(ch) }, "make sure out channel is closed")
+	})
 }

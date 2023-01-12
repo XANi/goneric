@@ -39,29 +39,19 @@ func GenChan[T any](genFunc func() T) chan T {
 	return ch
 }
 
-// GenChanN generates channel that will run function n times and send result to channel.
+// GenChanN generates channel that will run function n times and send result to channel, then close it
 // Function gets id of element starting from 0.
-func GenChanN[T any](count int, genFunc func(idx int) T) (ch chan T) {
+// setting optional argument to true will close the channel after finishing
+func GenChanN[T any](genFunc func(idx int) T, count int, closeOutputChan ...bool) (ch chan T) {
 	// we take channel as argument instead of returning channel for more flexibility
 	ch = make(chan T, 1)
 	go func() {
 		for i := 0; i < count; i++ {
 			ch <- genFunc(i)
 		}
-	}()
-	return ch
-}
-
-// GenChanNClose generates channel that will run function n times and send result to channel, then close it
-// Function gets id of element starting from 0.
-func GenChanNClose[T any](count int, genFunc func(idx int) T) (ch chan T) {
-	// we take channel as argument instead of returning channel for more flexibility
-	ch = make(chan T, 1)
-	go func() {
-		for i := 0; i < count; i++ {
-			ch <- genFunc(i)
+		if len(closeOutputChan) > 0 && closeOutputChan[0] {
+			close(ch)
 		}
-		close(ch)
 	}()
 	return ch
 }
@@ -102,25 +92,15 @@ func GenChanCloser[T any](genFunc func() T) (out chan T, closer func(closeChanne
 }
 
 // GenSliceToChan returns channel with background goroutine feeding it data from slice
-func GenSliceToChan[T any](in []T) (out chan T) {
+func GenSliceToChan[T any](in []T, closeOutputChan ...bool) (out chan T) {
 	out = make(chan T, 1)
 	go func() {
 		for _, v := range in {
 			out <- v
 		}
+		if len(closeOutputChan) > 0 && closeOutputChan[0] {
+			close(out)
+		}
 	}()
 	return out
-}
-
-// GenSliceToChanClose returns channel with background goroutine feeding it data from slice
-// then closes the channel
-func GenSliceToChanClose[T any](in []T) (outCh chan T) {
-	outCh = make(chan T, 1)
-	go func() {
-		for _, v := range in {
-			outCh <- v
-		}
-		close(outCh)
-	}()
-	return outCh
 }

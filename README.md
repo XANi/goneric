@@ -91,6 +91,8 @@ Channel-operating function *in general* should accept channel as parameter; the 
 ### Async
 
 * `Async` - run function in background goroutine and return result as a channel
+* `AsyncV` - run functions in background goroutine and return result as a channel, then close it
+* `AsyncVUnpanic` - run function in background goroutine and return result as a channel, then close it, ignoring every panic.
 * `AsyncPipe` - run function in background, taking and returning values to pipe. Designed to be chained
 * `AsyncOut` - as `AsyncPipe` but takes output channel as argument
 * `AsyncIn` - converts value into channel with that value

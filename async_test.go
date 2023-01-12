@@ -12,6 +12,22 @@ func TestAsync(t *testing.T) {
 	out := Async(func() int { return 1 })
 	assert.Equal(t, 1, <-out)
 }
+func TestAsyncV(t *testing.T) {
+	out := AsyncV(
+		func() int { return 2 },
+		func() int { return 1 },
+	)
+	assert.True(t, CompareSliceSet([]int{1, 2}, []int{<-out, <-out}))
+}
+
+func TestAsyncVUnpanic(t *testing.T) {
+	out := AsyncVUnpanic(
+		func() int { time.Sleep(time.Millisecond * 10); return 2 },
+		func() int { panic("fail") },
+		func() int { return 1 },
+	)
+	assert.True(t, CompareSliceSet([]int{1, 2}, []int{<-out, <-out}))
+}
 
 func TestAsyncPipe(t *testing.T) {
 	out :=

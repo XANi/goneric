@@ -39,6 +39,20 @@ func TestMapSlice(t *testing.T) {
 	}, []string{"1", "3", "2"})
 	assert.Equal(t, []int{1, 3, 2}, mappedData)
 }
+func ExampleMapSlice() {
+	out := MapSlice(
+		func(i int) string { return fmt.Sprintf("-=0x%02x=-", i) },
+		MapSlice(
+			func(i int) int { return i + 1 },
+			MapSlice(
+				func(i int) int { return i * i },
+				GenSlice(10, func(idx int) int { return idx }),
+			),
+		),
+	)
+	fmt.Printf("%+v", out)
+	// output: [-=0x01=- -=0x02=- -=0x05=- -=0x0a=- -=0x11=- -=0x1a=- -=0x25=- -=0x32=- -=0x41=- -=0x52=-]
+}
 
 func TestMapSliceErr(t *testing.T) {
 	mappedData, err := MapSliceErr(func(v string) (int, error) {

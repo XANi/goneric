@@ -257,3 +257,20 @@ func TestSliceDedupeFunc(t *testing.T) {
 			},
 		))
 }
+
+func TestFirstOrEmpty(t *testing.T) {
+	assert.Equal(t, 4, FirstOrEmpty([]int{4, 3, 2}))
+	assert.Equal(t, 0, FirstOrEmpty([]int{}))
+}
+func TestLastOrEmpty(t *testing.T) {
+	assert.Equal(t, 2, LastOrEmpty([]int{4, 3, 2}))
+	assert.Equal(t, 0, LastOrEmpty([]int{}))
+}
+func TestFirstOrDefault(t *testing.T) {
+	assert.Equal(t, 4, FirstOrDefault([]int{4, 3, 2}, 7))
+	assert.Equal(t, 7, FirstOrDefault([]int{}, 7))
+}
+func TestLastOrDefault(t *testing.T) {
+	assert.Equal(t, 2, LastOrDefault([]int{4, 3, 2}, 7))
+	assert.Equal(t, 7, LastOrDefault([]int{}, 7))
+}

@@ -39,6 +39,10 @@ Channel-operating function *in general* should accept channel as parameter; the 
 * `SliceIn` - Check whether value is in slice
 * `SliceDedupe` - remove duplicates from `comparable` slice
 * `SliceDedupeFunc` - remove duplicates from `any` slice via conversion function
+* `FirstOrEmpty` - return first element or empty value
+* `LastOrEmpty` - return last element or empty value
+* `FirstOrEmpty` - return first element or passed "default" value
+* `LastOrEmpty` - return last element or passed "default" value
 
 ### Map
 

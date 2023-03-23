@@ -167,3 +167,41 @@ func SliceDedupeFunc[T any, C comparable](slice []T, convert func(T) C) (out []T
 	}
 	return out
 }
+
+// FirstOrEmpty returns first element of slice or empty/default type
+func FirstOrEmpty[T any](slice []T) (out T) {
+	if len(slice) > 0 {
+		return slice[0]
+	} else {
+		var r T
+		return r
+	}
+}
+
+// LastOrEmpty returns last element of slice or empty/default type
+func LastOrEmpty[T any](slice []T) (out T) {
+	if len(slice) > 0 {
+		return slice[len(slice)-1]
+	} else {
+		var r T
+		return r
+	}
+}
+
+// FirstOrDefault returns first element of slice or passed default value
+func FirstOrDefault[T any](slice []T, def T) (out T) {
+	if len(slice) > 0 {
+		return slice[0]
+	} else {
+		return def
+	}
+}
+
+// LastOrDefault returns last element of slice or passed default value
+func LastOrDefault[T any](slice []T, def T) (out T) {
+	if len(slice) > 0 {
+		return slice[len(slice)-1]
+	} else {
+		return def
+	}
+}

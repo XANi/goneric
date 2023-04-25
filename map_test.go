@@ -138,3 +138,32 @@ func TestMapToSlice(t *testing.T) {
 				},
 			)))
 }
+func TestMapMap(t *testing.T) {
+	data := map[string]int{
+		"a": 1,
+		"b": 2,
+		"c": 3,
+	}
+	out := map[int]string{}
+	out = MapMap(func(a string, b int) (int, string) { return b, a }, data)
+	assert.Equal(t, map[int]string{
+		1: "a",
+		2: "b",
+		3: "c",
+	}, out)
+}
+
+func TestMapMapInplace(t *testing.T) {
+	data := map[string]int{
+		"a": 1,
+		"b": 2,
+		"c": 3,
+	}
+	out := map[int]string{}
+	MapMapInplace(func(a string, b int) (int, string) { return b, a }, data, out)
+	assert.Equal(t, map[int]string{
+		1: "a",
+		2: "b",
+		3: "c",
+	}, out)
+}

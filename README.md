@@ -47,6 +47,8 @@ Channel-operating function *in general* should accept channel as parameter; the 
 ### Map
 
 * `Map` - Map variadic input thru function
+* `MapMap` - Map one map to another using a function
+* `MapMapInplace` - Map one map to another using a function, filling existing passed map
 * `MapSlice` - Map slice thru function
 * `MapSliceKey` - Convert map to slice of its keys. `map[Comparable]V -> []Comparable` 
 * `MapSliceValue` - Convert map to slice of its values. `map[Comparable]V -> []V`

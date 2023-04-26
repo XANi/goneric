@@ -30,49 +30,49 @@ Channel-operating function *in general* should accept channel as parameter; the 
 
 * `CompareSliceSet` - check whether slices have same elements regardless of order
 * `SliceMap` - Convert slice to map using function to get the key. `[]Struct{} -> map[Struct.key]Struct` being the common usage
-* `SliceMapSet` - Convert slice to set-like map. `[]Comparable -> map[Comparable]bool{true}`
-* `SliceMapSetFunc` - Convert slice to set-like map via helper function. `[]Any -> map[func(Any)Comparable]bool{true}`
+* `SliceMapSet` - Convert slice to set-like map. `[]K -> map[K]bool{true}`
+* `SliceMapSetFunc` - Convert slice to set-like map via helper function. `[]T -> map[func(T)Comparable]bool{true}`
 * `SliceDiff` - return difference between 2 slices of same comparable type, in form of 2 variables where first have elements 
    that are only in first set, and second elements only in second set. `([]T, []T) -> (leftOnly []T, rightOnly []T)`
 * `SliceDiffFunc`  - As `SliceDiff` but type of slice is irrelevant, via use of conversion function that converts it
    into comparable type. `([]T1,[]T2) -> (leftOnly []T1, rightOnly []T2)`
 * `SliceIn` - Check whether value is in slice
-* `SliceDedupe` - remove duplicates from `comparable` slice
-* `SliceDedupeFunc` - remove duplicates from `any` slice via conversion function
-* `FirstOrEmpty` - return first element or empty value
-* `LastOrEmpty` - return last element or empty value
-* `FirstOrEmpty` - return first element or passed "default" value
-* `LastOrEmpty` - return last element or passed "default" value
+* `SliceDedupe` - remove duplicates from `comparable` slice. `[]T -> []T`
+* `SliceDedupeFunc` - remove duplicates from `any` slice via conversion function. `[]T -> []T`
+* `FirstOrEmpty` - return first element or empty value. `[]T -> T`
+* `LastOrEmpty` - return last element or empty value. `[]T -> T`
+* `FirstOrEmpty` - return first element or passed "default" value. `[]T -> T`
+* `LastOrEmpty` - return last element or passed "default" value. `[]T -> T`
 
 ### Map
 
-* `Map` - Map variadic input thru function. 
 * `MapMap` - Map one map to another using a function. `map[K1]V1 -> map[K2]V2`
-* `MapMapInplace` - Map one map to another using a function, filling existing passed map
-* `MapSlice` - Map slice thru function
-* `MapSliceKey` - Convert map to slice of its keys. `map[Comparable]V -> []Comparable` 
-* `MapSliceValue` - Convert map to slice of its values. `map[Comparable]V -> []V`
-* `MapErr` - Same as `Map` but function can return error that will stop the loop and propagate it out
-* `MapSliceErr` - Same as `MapSlice` but function can return error that will stop the loop and propagate it out
-* `MapSliceSkip` - Same as `MapSlice` but function can return true in second argument to skip the entry
-* `MapSliceErrSkip` - Same as `MapSliceErr` but `ErrSkip` error type can be used to skip entry instead of erroring out
+* `MapMapInplace` - Map one map to another using a function, filling existing passed map. `(in map[K1]V1, out map[K2]V2)`
+* `Map` - Map variadic input thru function. `T1... -> []T2`
+* `MapSlice` - Map slice thru function. `[]T1 -> []T2`
+* `MapSliceKey` - Convert map to slice of its keys. `map[K]V -> []K` 
+* `MapSliceValue` - Convert map to slice of its values. `map[K]V -> []V`
+* `MapErr` - Same as `Map` but function can return error that will stop the loop and propagate it out.  `T1... -> ([]T2,err)`
+* `MapSliceErr` - Same as `MapSlice` but function can return error that will stop the loop and propagate it out.  `T1... -> ([]T2,err)`
+* `MapSliceSkip` - Same as `MapSlice` but function can return true in second argument to skip the entry. `[]T1 -> []T2`
+* `MapSliceErrSkip` - Same as `MapSliceErr` but `ErrSkip` error type can be used to skip entry instead of erroring out.  `[]T1 -> ([]T2,err)`
 
 ### Filter
 
-* `FilterMap` - Filter thru a map using a function
-* `FilterSlice` - Filter thru a slice using a function
-* `FilterChan` - Filter thru a channel using a function
-* `FilterChanErr` - Filter thru a channel using a function, with separate output channel for that function errors
+* `FilterMap` - Filter thru a map using a function. `map[K]V -> map[K]V`
+* `FilterSlice` - Filter thru a slice using a function. `[]T -> []T`
+* `FilterChan` - Filter thru a channel using a function. `in chan T -> out chan T`
+* `FilterChanErr` - Filter thru a channel using a function, with separate output channel for that function errors. `in chan T -> (out chan T,err chan error)`
 
 ### Channel tools
 
-* `ChanGen` - Feed function output to channel in a loop
-* `ChanGenN` - Feed function output to channel in a loop N times, optionally close it
-* `ChanGenCloser` - Use function to generate channel messages, stop when closer function is called
-* `ChanToSlice` - Loads data to slice from channel until channel is closed
-* `ChanToSliceN` - Loads data to slice from channel to at most N elements
-* `ChanToSliceNTimeout` - Loads data to slice from channel to at most N elements or until timeout passes
-* `SliceToChan` - Sends slice to passed channel in background, optionally closes it
+* `ChanGen` - Feed function output to passed channel in a loop. `(f()T, chan T)`
+* `ChanGenN` - Feed function output to passed channel in a loop N times, optionally close it. `(f()T, count, chan T)`
+* `ChanGenCloser` - Use function to pass generated messages to channel, stop when closer function is called,  `(f()T, chan T) -> chan closeChannel`
+* `ChanToSlice` - Loads data to slice from channel until channel is closed. `chan T -> []T`
+* `ChanToSliceN` - Loads data to slice from channel to at most N elements. `(chan T,count) -> []T`
+* `ChanToSliceNTimeout` - Loads data to slice from channel to at most N elements or until timeout passes. `(chan T,count,timeout) -> []T`
+* `SliceToChan` - Sends slice to passed channel in background, optionally closes it. `[]T -> chan T`
 
 ### Worker
 
@@ -93,12 +93,12 @@ Channel-operating function *in general* should accept channel as parameter; the 
 
 ### Async
 
-* `Async` - run function in background goroutine and return result as a channel
-* `AsyncV` - run functions in background goroutine and return result as a channel, then close it
-* `AsyncVUnpanic` - run function in background goroutine and return result as a channel, then close it, ignoring every panic.
-* `AsyncPipe` - run function in background, taking and returning values to pipe. Designed to be chained
-* `AsyncOut` - as `AsyncPipe` but takes output channel as argument
-* `AsyncIn` - converts value into channel with that value
+* `Async` - run function in background goroutine and return result as a channel. `func()T -> chan T`
+* `AsyncV` - run functions in background goroutine and return result as a channel, then close it. `funcList... -> chan T`
+* `AsyncVUnpanic` - run function in background goroutine and return result as a channel, then close it, ignoring every panic. `funcList... -> chan T`
+* `AsyncPipe` - run function in background, taking and returning values to pipe. Designed to be chained. `(in chan T1,  func(T1)T2) -> chan T2`
+* `AsyncOut` - as `AsyncPipe` but takes output channel as argument .`(in chan T1, func(T1)T2, chan T2)`
+* `AsyncIn` - converts value into channel with that value. `T -> chan T`
 
 ### (Re)Try
 
@@ -109,14 +109,14 @@ Channel-operating function *in general* should accept channel as parameter; the 
 ### Generators
 
 Generator functions always return generated values. 
-For ones that operate on passed on types look at `Type*` functions like `SliceGen`
+For ones that operate on passed on types look at `Type*Gen*` functions like `SliceGen`
 
-* `GenSlice` - generate slice of given length via function
-* `GenMap` - generate Map of given length via function
-* `GenChan` - returns channel fed from generator function ad infinitum
-* `GenChanN` - returns channel fed from generator function N times
-* `GenChanNCloser` - returns channel fed from generator that returns closer() function that will stop generator from running,
-* `GenSliceToChan` - returns channel fed from slice, optionally closes it
+* `GenSlice` - generate slice of given length via function. `func(idx int) T -> []T`
+* `GenMap` - generate Map of given length via function. `func(idx int) K,V -> map[K]V`
+* `GenChan` - returns channel fed from generator function ad infinitum. `func() K -> chan T`
+* `GenChanN` - returns channel fed from generator function N times. `func() K -> chan T`
+* `GenChanNCloser` - returns channel fed from generator that returns closer() function that will stop generator from running.`func() K -> (chan T,func closer())` 
+* `GenSliceToChan` - returns channel fed from slice, optionally closes it, `[]K -> chan T`
 
 
 ### Math
@@ -140,11 +140,12 @@ Results unless specified otherwise will follow math of type, so median of `[]int
 ## Types
 
 * `Number` - any basic numeric types
+* `ValueIndex` - represents slice element with index
+* `KeyValue` - represents map key/value pair
 
 ## Current project state
 
-Unstable interface - the function names might change, the new ones will still be committed with full test coverage, no benchmarks yet.
-Take care with `get -u` until 1.0.0 hits.
+No API changes to existing functions will be made in 1.x.x releases
 
 
 ## Analytics

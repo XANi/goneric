@@ -144,8 +144,7 @@ func TestMapMap(t *testing.T) {
 		"b": 2,
 		"c": 3,
 	}
-	out := map[int]string{}
-	out = MapMap(func(a string, b int) (int, string) { return b, a }, data)
+	out := MapMap(func(a string, b int) (int, string) { return b, a }, data)
 	assert.Equal(t, map[int]string{
 		1: "a",
 		2: "b",

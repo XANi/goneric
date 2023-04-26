@@ -26,45 +26,64 @@ Channel-operating function *in general* should accept channel as parameter; the 
 
 ## Examples
 
+### Get the list of elements that differ between slices of different types
+
+```go
+data1 := []string{"1", "2", "3", "4", "5"}
+data2 := []float32{1, 7, 3, 4}
+stringToInt := func(s string) int {
+	i, _ := strconv.Atoi(s)
+	return i
+}
+floatToInt := func(f float32) int {
+	return int(f)
+}
+left, right := SliceDiffFunc(data1, data2, stringToInt, floatToInt)
+fmt.Printf("left: %T%+v right: %T%+v", left, left, right, right)
+// left: []string[2 5] right: []float32[7]
+```
+
+
+
 ### Convert every string to float, exit on first error
 
 ```go
-	in := []string{"1", "2.2", "3", "cat","5"}
-	out, err := goneric.MapSliceErr(func(s string) (float64, error) {
-		return strconv.ParseFloat(s, 64)
-	}, in)
-	fmt.Printf("%+v, err: %s", out, err)
-	// [1 2.2 3], err: strconv.ParseFloat: parsing "cat": invalid syntax
+in := []string{"1", "2.2", "3", "cat","5"}
+out, err := goneric.MapSliceErr(func(s string) (float64, error) {
+	return strconv.ParseFloat(s, 64)
+}, in)
+fmt.Printf("%+v, err: %s", out, err)
+// [1 2.2 3], err: strconv.ParseFloat: parsing "cat": invalid syntax
 ```
 
 ### Convert every string to float, skip entries with error
 
 
 ```go
-	in := []string{"1", "2.2", "3", "cat", "5"}
-	out := goneric.MapSliceSkip(func(s string) (float64, bool) {
-		f, err := strconv.ParseFloat(s, 64)
-		return f, err != nil
-	}, in)
-	fmt.Printf("%+v", out)
-	// [1 2.2 3 5]
+in := []string{"1", "2.2", "3", "cat", "5"}
+out := goneric.MapSliceSkip(func(s string) (float64, bool) {
+	f, err := strconv.ParseFloat(s, 64)
+	return f, err != nil
+}, in)
+fmt.Printf("%+v", out)
+// [1 2.2 3 5]
 ```
 
 ### Run every element of map thru function in parallel, creating new map, at max concurrency of 2 goroutines
 
-```
-	data := map[string]int{
-		"a": 99,
-		"b": 250,
-		"c": 30,
-		"d": 9,
-	}
-	mappedData := goneric.ParallelMapMap(func(k string, v int) (string, string) {
-		time.Sleep(time.Millisecond * time.Duration(v))
-		return k, fmt.Sprintf("0x%02x", v)
-	}, 2, data)
-	fmt.Printf("%+v", mappedData)
-	// map[a:0x63 b:0xfa c:0x1e d:0x09]
+```go
+data := map[string]int{
+	"a": 99,
+	"b": 250,
+	"c": 30,
+	"d": 9,
+}
+mappedData := goneric.ParallelMapMap(func(k string, v int) (string, string) {
+	time.Sleep(time.Millisecond * time.Duration(v))
+	return k, fmt.Sprintf("0x%02x", v)
+}, 2, data)
+fmt.Printf("%+v", mappedData)
+// map[a:0x63 b:0xfa c:0x1e d:0x09]
 ```
 
 ## Functions
@@ -160,7 +179,6 @@ For ones that operate on passed on types look at `Type*Gen*` functions like `Sli
 * `GenChanN` - returns channel fed from generator function N times. `func() K -> chan T`
 * `GenChanNCloser` - returns channel fed from generator that returns closer() function that will stop generator from running.`func() K -> (chan T,func closer())` 
 * `GenSliceToChan` - returns channel fed from slice, optionally closes it, `[]K -> chan T`
-
 
 ### Math
 

@@ -74,3 +74,22 @@ func TestParallelSliceMapChannelFinisher(t *testing.T) {
 	assert.True(t, CompareSliceSet([]int{1, 2, 3, 7, 9, 12}, out), out)
 	assert.True(t, <-finish)
 }
+
+func TestParallelMapMap(t *testing.T) {
+	data := map[string]int{
+		"a": 3,
+		"b": 1,
+		"c": 8,
+		"d": 7,
+	}
+	mappedData := ParallelMapMap(func(k string, v int) (string, string) {
+		time.Sleep(time.Millisecond * time.Duration(v))
+		return k, strconv.Itoa(v)
+	}, 4, data)
+	assert.Equal(t, map[string]string{
+		"a": "3",
+		"b": "1",
+		"c": "8",
+		"d": "7",
+	}, mappedData)
+}

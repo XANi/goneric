@@ -47,6 +47,46 @@ func ParallelMapSlice[T1, T2 any](mapFunc func(T1) T2, concurrency int, slice []
 	return out
 }
 
+// ParallelMapMap takes map and runs each element thru function in parallel, storing result in a map
+func ParallelMapMap[K1, K2 comparable, V1, V2 any](
+	mapFunc func(k K1, v V1) (K2, V2),
+	concurrency int,
+	in map[K1]V1,
+) map[K2]V2 {
+	out := make(map[K2]V2, len(in))
+	wg := sync.WaitGroup{}
+	inCh := make(chan KeyValue[K1, V1], concurrency/2+1)  // TODO check whether size matters here for anything
+	outCh := make(chan KeyValue[K2, V2], concurrency/2+1) // we're just guessing here that having open slot in channel is good for performance, test that
+	wg.Add(2)
+	go func() {
+		defer wg.Done()
+		for v := range outCh {
+			out[v.K] = v.V
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		WorkerPool(
+			inCh,
+			outCh,
+			func(i KeyValue[K1, V1]) KeyValue[K2, V2] {
+				k, v := mapFunc(i.K, i.V)
+				return KeyValue[K2, V2]{
+					K: k,
+					V: v,
+				}
+
+			},
+			concurrency, true)
+	}()
+	for k, v := range in {
+		inCh <- KeyValue[K1, V1]{K: k, V: v}
+	}
+	close(inCh)
+	wg.Wait()
+	return out
+}
+
 // ParallelMapSliceChan feeds slice to function in parallel and returns channels with function output
 // channel is closed when function finishes. Caller should close input channel when it finishes sending
 // or else it will leak goroutines

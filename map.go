@@ -111,19 +111,16 @@ func MapToSlice[K1 comparable, V any, V2 any](f func(k K1, v V) V2, in map[K1]V)
 }
 
 // MapMap runs every map element thru function that returns new key and value, and returns that in another map. Types can vary between in and out.
-func MapMap[K1, K2 comparable, V1, V2 any](f func(k K1, v V1) (K2, V2), in map[K1]V1) (out map[K2]V2) {
+func MapMap[K1, K2 comparable, V1, V2 any](mapFunc func(k K1, v V1) (K2, V2), in map[K1]V1) (out map[K2]V2) {
 	out = make(map[K2]V2, len(in))
-	for kin, vin := range in {
-		kout, vout := f(kin, vin)
-		out[kout] = vout
-	}
+	MapMapInplace(mapFunc, in, out)
 	return out
 }
 
 // MapMapInplace runs every map element thru function that returns new key and value, and puts it into existing map. Types can vary between in and out.
-func MapMapInplace[K1, K2 comparable, V1, V2 any](f func(k K1, v V1) (K2, V2), in map[K1]V1, out map[K2]V2) {
+func MapMapInplace[K1, K2 comparable, V1, V2 any](mapFunc func(k K1, v V1) (K2, V2), in map[K1]V1, out map[K2]V2) {
 	for kin, vin := range in {
-		kout, vout := f(kin, vin)
+		kout, vout := mapFunc(kin, vin)
 		out[kout] = vout
 	}
 }

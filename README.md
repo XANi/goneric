@@ -46,8 +46,8 @@ Channel-operating function *in general* should accept channel as parameter; the 
 
 ### Map
 
-* `Map` - Map variadic input thru function
-* `MapMap` - Map one map to another using a function
+* `Map` - Map variadic input thru function. 
+* `MapMap` - Map one map to another using a function. `map[K1]V1 -> map[K2]V2`
 * `MapMapInplace` - Map one map to another using a function, filling existing passed map
 * `MapSlice` - Map slice thru function
 * `MapSliceKey` - Convert map to slice of its keys. `map[Comparable]V -> []Comparable` 
@@ -85,6 +85,7 @@ Channel-operating function *in general* should accept channel as parameter; the 
 ### Parallel
 
 * `ParallelMap` - like `Map` but runs function in parallel up to specified number of goroutines. Ordered.
+* `ParallelMap` - like `MapMap` but runs function in parallel up to specified number of goroutines. Ordered.
 * `ParallelMapSlice` - like `MapSlice` but runs function in parallel up to specified number of goroutines. Ordered.
 * `ParallelMapSliceChan` - runs slice elements thru function and sends it to channel
 * `ParallelMapSliceChanFinisher` - runs slice elements thru function and sends it to channel. 

@@ -18,6 +18,12 @@ type ValueIndex[V any] struct {
 	IDX int
 }
 
+// KeyValue represents map element
+type KeyValue[Key comparable, Value any] struct {
+	K Key
+	V Value
+}
+
 // Response is used to pass data and channel to return value to worker
 type Response[DataT, ReturnT any] struct {
 	ReturnCh chan ReturnT

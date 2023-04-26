@@ -12,7 +12,7 @@ Collection of generics-related utility functions, slice/map/channel manipulation
 
 If not specified the returning value will be at least initiated to be empty, not nil.
 
-Functions returning stuff like `map[key]boolean` (using map as set) set the boolean value to `true` 
+Functions returning stuff like `map[key]boolean` (using map as set) set the boolean value to `true`
 because `m["nonexistent_key"] == false`
 
 Naming function goes in order of `operation_group`, `input type`, `modifier`/`output` with ones irrelevant skipped.
@@ -23,6 +23,49 @@ If possible, sensible, functions that take function parameter should have functi
 
 Channel-operating function *in general* should accept channel as parameter; the ones returning a channel should be under `Gen*` hierarchy
 
+
+## Examples
+
+### Convert every string to float, exit on first error
+
+```go
+	in := []string{"1", "2.2", "3", "cat","5"}
+	out, err := goneric.MapSliceErr(func(s string) (float64, error) {
+		return strconv.ParseFloat(s, 64)
+	}, in)
+	fmt.Printf("%+v, err: %s", out, err)
+	// [1 2.2 3], err: strconv.ParseFloat: parsing "cat": invalid syntax
+```
+
+### Convert every string to float, skip entries with error
+
+
+```go
+	in := []string{"1", "2.2", "3", "cat", "5"}
+	out := goneric.MapSliceSkip(func(s string) (float64, bool) {
+		f, err := strconv.ParseFloat(s, 64)
+		return f, err != nil
+	}, in)
+	fmt.Printf("%+v", out)
+	// [1 2.2 3 5]
+```
+
+### Run every element of map thru function in parallel, creating new map, at max concurrency of 2 goroutines
+
+```
+	data := map[string]int{
+		"a": 99,
+		"b": 250,
+		"c": 30,
+		"d": 9,
+	}
+	mappedData := goneric.ParallelMapMap(func(k string, v int) (string, string) {
+		time.Sleep(time.Millisecond * time.Duration(v))
+		return k, fmt.Sprintf("0x%02x", v)
+	}, 2, data)
+	fmt.Printf("%+v", mappedData)
+	// map[a:0x63 b:0xfa c:0x1e d:0x09]
+```
 
 ## Functions
 

@@ -86,7 +86,9 @@ fmt.Printf("%+v", mappedData)
 // map[a:0x63 b:0xfa c:0x1e d:0x09]
 ```
 
+
 ## Functions
+
 
 ### Slice 
 
@@ -106,6 +108,7 @@ fmt.Printf("%+v", mappedData)
 * `FirstOrEmpty` - return first element or passed "default" value. `[]T -> T`
 * `LastOrEmpty` - return last element or passed "default" value. `[]T -> T`
 
+
 ### Map
 
 * `MapMap` - Map one map to another using a function. `map[K1]V1 -> map[K2]V2`
@@ -119,12 +122,14 @@ fmt.Printf("%+v", mappedData)
 * `MapSliceSkip` - Same as `MapSlice` but function can return true in second argument to skip the entry. `[]T1 -> []T2`
 * `MapSliceErrSkip` - Same as `MapSliceErr` but `ErrSkip` error type can be used to skip entry instead of erroring out.  `[]T1 -> ([]T2,err)`
 
+
 ### Filter
 
 * `FilterMap` - Filter thru a map using a function. `map[K]V -> map[K]V`
 * `FilterSlice` - Filter thru a slice using a function. `[]T -> []T`
 * `FilterChan` - Filter thru a channel using a function. `in chan T -> out chan T`
 * `FilterChanErr` - Filter thru a channel using a function, with separate output channel for that function errors. `in chan T -> (out chan T,err chan error)`
+
 
 ### Channel tools
 
@@ -136,6 +141,7 @@ fmt.Printf("%+v", mappedData)
 * `ChanToSliceNTimeout` - Loads data to slice from channel to at most N elements or until timeout passes. `(chan T,count,timeout) -> []T`
 * `SliceToChan` - Sends slice to passed channel in background, optionally closes it. `[]T -> chan T`
 
+
 ### Worker
 
 * `WorkerPool` - spawn x goroutines with workers and return after input channel is closed and all requests are parsed. Optionally close output
@@ -143,6 +149,7 @@ fmt.Printf("%+v", mappedData)
 * `WorkerPoolFinisher` - spawn x goroutines with workers in background, returns finisher channel that signals with `bool{true}` when the processing ends.
 * `WorkerPoolDrain` - spawn x goroutines that will run a function on the channel element without returning anything
 * `WorkerPoolAsync` - function will run x goroutines for worker in the background and return a function that enqueues job and returns channel with result of that job, allowing to queue stuff to run in background conveniently
+
 
 ### Parallel
 
@@ -153,6 +160,7 @@ fmt.Printf("%+v", mappedData)
 * `ParallelMapSliceChanFinisher` - runs slice elements thru function and sends it to channel. 
    Returns `finisher chan(bool){true}` that will return single `true` message when all workers finish and close it
 
+
 ### Async
 
 * `Async` - run function in background goroutine and return result as a channel. `func()T -> chan T`
@@ -162,11 +170,13 @@ fmt.Printf("%+v", mappedData)
 * `AsyncOut` - as `AsyncPipe` but takes output channel as argument .`(in chan T1, func(T1)T2, chan T2)`
 * `AsyncIn` - converts value into channel with that value. `T -> chan T`
 
+
 ### (Re)Try
 
 * `Retry` - retry function X times
 * `RetryAfter` - retry with timeout, minimal, and maximal interval between retries.
 * `Try` - tries each function in slice till first success
+
 
 ### Generators
 
@@ -180,12 +190,12 @@ For ones that operate on passed on types look at `Type*Gen*` functions like `Sli
 * `GenChanNCloser` - returns channel fed from generator that returns closer() function that will stop generator from running.`func() K -> (chan T,func closer())` 
 * `GenSliceToChan` - returns channel fed from slice, optionally closes it, `[]K -> chan T`
 
+
 ### Math
 
 Not equivalent of `math` library, NaN math is ignored, zero length inputs might, sanitize your inputs.
 
 Results unless specified otherwise will follow math of type, so median of `[]int{8,9}` will be `int{8}` coz of rounding.
-
 
 * `Sum`
 * `SumF64` - sum returning float64, for summing up small ints
@@ -204,9 +214,14 @@ Results unless specified otherwise will follow math of type, so median of `[]int
 * `ValueIndex` - represents slice element with index
 * `KeyValue` - represents map key/value pair
 
+## Miscellaneous 
+
+* `Must` - Turn error into panic, returning non-err arguments
+* `IgnoreErr` - Ignores error, returning default type value if error is passed
+
 ## Current project state
 
-No API changes to existing functions will be made in 1.x.x releases
+No API changes to existing functions AP will be made in 1.x.x releases
 
 
 ## Analytics

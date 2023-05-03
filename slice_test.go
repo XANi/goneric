@@ -258,6 +258,19 @@ func TestSliceDedupeFunc(t *testing.T) {
 		))
 }
 
+func TestSliceReverse(t *testing.T) {
+	a := []int{1, 9, 4, 3, 7}
+	b := SliceReverse(a)
+	assert.Equal(t, []int{7, 3, 4, 9, 1}, SliceReverse(a))
+	assert.NotEqual(t, a, b)
+}
+
+func TestSliceReverseInplace(t *testing.T) {
+	a := []int{1, 9, 4, 3, 7}
+	SliceReverseInplace(a)
+	assert.Equal(t, []int{7, 3, 4, 9, 1}, a)
+}
+
 func TestFirstOrEmpty(t *testing.T) {
 	assert.Equal(t, 4, FirstOrEmpty([]int{4, 3, 2}))
 	assert.Equal(t, 0, FirstOrEmpty([]int{}))

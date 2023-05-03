@@ -102,7 +102,7 @@ func SliceDiff[T comparable](v1 []T, v2 []T) (inLeft []T, inRight []T) {
 // returns slice of elements that are only in first/left element
 // and ones that are only in right element.
 // Duplicates are ignored.
-//([]DataT,[]ReturnT) -> (leftOnly []DataT, rightOnly []ReturnT)
+// ([]DataT,[]ReturnT) -> (leftOnly []DataT, rightOnly []ReturnT)
 func SliceDiffFunc[T1 any, T2 any, Z comparable](
 	v1 []T1,
 	v2 []T2,
@@ -143,7 +143,7 @@ func SliceIn[T comparable](slice []T, contains T) bool {
 	return false
 }
 
-//SliceDedupe removes duplicates
+// SliceDedupe removes duplicates
 func SliceDedupe[T comparable](slice []T) (out []T) {
 	presence := make(map[T]bool, 0)
 	for _, v := range slice {
@@ -155,7 +155,7 @@ func SliceDedupe[T comparable](slice []T) (out []T) {
 	return out
 }
 
-//SliceDedupeFunc removes duplicates with function to convert the value to comparable
+// SliceDedupeFunc removes duplicates with function to convert the value to comparable
 func SliceDedupeFunc[T any, C comparable](slice []T, convert func(T) C) (out []T) {
 	presence := make(map[C]bool, 0)
 	for _, v := range slice {
@@ -166,6 +166,22 @@ func SliceDedupeFunc[T any, C comparable](slice []T, convert func(T) C) (out []T
 		}
 	}
 	return out
+}
+
+func SliceReverse[T any](in []T) (out []T) {
+	out = make([]T, len(in))
+	copy(out, in)
+	for i := len(out)/2 - 1; i >= 0; i-- {
+		tmp := len(out) - 1 - i
+		out[i], out[tmp] = out[tmp], out[i]
+	}
+	return out
+}
+func SliceReverseInplace[T any](out []T) {
+	for i := len(out)/2 - 1; i >= 0; i-- {
+		tmp := len(out) - 1 - i
+		out[i], out[tmp] = out[tmp], out[i]
+	}
 }
 
 // FirstOrEmpty returns first element of slice or empty/default type

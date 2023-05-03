@@ -103,6 +103,8 @@ fmt.Printf("%+v", mappedData)
 * `SliceIn` - Check whether value is in slice
 * `SliceDedupe` - remove duplicates from `comparable` slice. `[]T -> []T`
 * `SliceDedupeFunc` - remove duplicates from `any` slice via conversion function. `[]T -> []T`
+* `SliceReverse` - reverses the order of elements in slice and returns reversed copy, `[]T -> []T`
+* `SliceReverseInplace` - reverses the order of elements in slice in-place.
 * `FirstOrEmpty` - return first element or empty value. `[]T -> T`
 * `LastOrEmpty` - return last element or empty value. `[]T -> T`
 * `FirstOrEmpty` - return first element or passed "default" value. `[]T -> T`

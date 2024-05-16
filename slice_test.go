@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"strconv"
+	"strings"
 	"testing"
 )
 
@@ -105,7 +106,17 @@ func TestSliceMapSetFunc(t *testing.T) {
 	assert.Equal(t, sliceMap["t3"], true)
 	assert.Equal(t, sliceMap["t4"], false)
 	assert.Len(t, sliceMap, 3)
+}
 
+func TestSliceMapFunc(t *testing.T) {
+	sliceMap := SliceMapFunc(
+		func(s string) (string, string) {
+			v := strings.Split(s, ":")
+			return v[0], v[1]
+		},
+		[]string{"a:b", "c:d"},
+	)
+	assert.Equal(t, map[string]string{"a": "b", "c": "d"}, sliceMap)
 }
 
 func TestSliceDiff(t *testing.T) {

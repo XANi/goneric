@@ -69,7 +69,7 @@ func AsyncOut[T1, T2 any](in chan T1, f func(T1) T2, out chan T2) {
 	}()
 }
 
-//AsyncIn turns value into channel with value
+// AsyncIn turns value into channel with value
 func AsyncIn[T1 any](in T1) (out chan T1) {
 	out = make(chan T1, 1)
 	out <- in

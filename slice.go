@@ -61,12 +61,24 @@ func SliceMapSet[T comparable](a []T) (n map[T]bool) {
 // SliceMapSetFunc turns slice into map with key being slice elements passed thru specified function
 // and value being true boolean
 // `[]Any -> map[func(Any)Comparable]bool{true}`
-func SliceMapSetFunc[T any, M comparable](mapFunc func(T) M, a []T) (n map[M]bool) {
+func SliceMapSetFunc[T any, M comparable](mapFunc func(T) M, slice []T) (n map[M]bool) {
 	n = make(map[M]bool, 0)
-	for _, e := range a {
+	for _, e := range slice {
 		n[mapFunc(e)] = true
 	}
 	return n
+}
+
+// SliceMapFunc extracts key and value for map from slice using function
+// `[]Any -> map[comparable K]V`
+func SliceMapFunc[T any, K comparable, V any](mapFunc func(T) (K, V), slice []T) map[K]V {
+	n := make(map[K]V, 0)
+	for _, e := range slice {
+		k, v := mapFunc(e)
+		n[k] = v
+	}
+	return n
+
 }
 
 // SliceDiff compares two slices of comparable values and

@@ -93,7 +93,8 @@ fmt.Printf("%+v", mappedData)
 ### Slice 
 
 * `CompareSliceSet` - check whether slices have same elements regardless of order
-* `SliceMap` - Convert slice to map using function to get the key. `[]Struct{} -> map[Struct.key]Struct` being the common usage
+* `SliceMap` - Convert slice to map using function to get the key. `[]Struct{} -> f(s)K -> map[Struct.key]Struct` being the common usage
+* `SliceMapFunc` - Convert slice to map using function to return key and value. `[]Struct{} -> f(s)(K,V) -> map[K]V`
 * `SliceMapSet` - Convert slice to set-like map. `[]K -> map[K]bool{true}`
 * `SliceMapSetFunc` - Convert slice to set-like map via helper function. `[]T -> map[func(T)Comparable]bool{true}`
 * `SliceDiff` - return difference between 2 slices of same comparable type, in form of 2 variables where first have elements 

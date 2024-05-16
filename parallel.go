@@ -10,7 +10,7 @@ func ParallelMap[T1, T2 any](mapFunc func(T1) T2, concurrency int, slice ...T1) 
 	return ParallelMapSlice(mapFunc, concurrency, slice)
 }
 
-//ParallelMapSlice takes slice and runs it thru function in parallel, up to `concurrency` goroutines
+// ParallelMapSlice takes slice and runs it thru function in parallel, up to `concurrency` goroutines
 // Order of elements in slice is kept
 func ParallelMapSlice[T1, T2 any](mapFunc func(T1) T2, concurrency int, slice []T1) []T2 {
 	out := make([]T2, len(slice))

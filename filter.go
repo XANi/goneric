@@ -22,7 +22,7 @@ func FilterSlice[V any](filterFunc func(idx int, v V) (accept bool), in []V) (ou
 	return out
 }
 
-//FilterChan filters elements going thru a channel
+// FilterChan filters elements going thru a channel
 // close is propagated
 func FilterChan[T any](filterFunc func(T) bool, in chan T) (out chan T) {
 	out = make(chan T, 1)
@@ -37,7 +37,7 @@ func FilterChan[T any](filterFunc func(T) bool, in chan T) (out chan T) {
 	return out
 }
 
-//FilterChanErr filters elements going thru channel, redirecting errors to separate channel
+// FilterChanErr filters elements going thru channel, redirecting errors to separate channel
 // both channels need to be read or else it will stall
 // close is propagated
 func FilterChanErr[T any](filterFunc func(T) (bool, error), in chan T) (out chan T, errCh chan error) {

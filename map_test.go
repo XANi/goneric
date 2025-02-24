@@ -138,6 +138,25 @@ func TestMapToSlice(t *testing.T) {
 				},
 			)))
 }
+
+func TestMapToSliceSorted(t *testing.T) {
+	data := map[string]int{
+		"a": 1,
+		"b": 2,
+		"d": 9,
+		"e": 3,
+		"c": 3,
+	}
+	out := MapToSliceSorted(func(k string, v int) string {
+		return fmt.Sprintf("%s:%d", k, v)
+	},
+		func(left string, right string) bool {
+			return left < right
+		},
+		data,
+	)
+	assert.Equal(t, []string{"a:1", "b:2", "c:3", "d:9", "e:3"}, out)
+}
 func TestMapMap(t *testing.T) {
 	data := map[string]int{
 		"a": 1,

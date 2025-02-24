@@ -1,5 +1,7 @@
 package goneric
 
+import "sort"
+
 // Map maps the list of variadic(...) values via function.
 // It is provided as convenience, MapSlice() should be used when you have incoming slice
 func Map[T1, T2 any](mapFunc func(v T1) T2, slice ...T1) []T2 {
@@ -104,6 +106,29 @@ func MapToSlice[K1 comparable, V any, V2 any](f func(k K1, v V) V2, in map[K1]V)
 	out = make([]V2, len(in))
 	i := 0
 	for k, v := range in {
+		out[i] = f(k, v)
+		i++
+	}
+	return out
+}
+
+// MapToSliceSorted converts map into slice via specified function
+func MapToSliceSorted[K1 comparable, V any, V2 any](
+	f func(k K1, v V) V2,
+	sortFuncLess func(left K1, right K1) bool,
+	in map[K1]V,
+) (out []V2) {
+	out = make([]V2, len(in))
+	i := 0
+	keys := MapSliceKey(in)
+	sort.Slice(keys, func(i int, j int) bool {
+		left := keys[i]
+		right := keys[j]
+		return sortFuncLess(left, right)
+	})
+
+	for _, k := range keys {
+		v := in[k]
 		out[i] = f(k, v)
 		i++
 	}

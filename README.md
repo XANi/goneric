@@ -124,7 +124,9 @@ fmt.Printf("%+v", mappedData)
 * `MapSliceErr` - Same as `MapSlice` but function can return error that will stop the loop and propagate it out.  `T1... -> ([]T2,err)`
 * `MapSliceSkip` - Same as `MapSlice` but function can return true in second argument to skip the entry. `[]T1 -> []T2`
 * `MapSliceErrSkip` - Same as `MapSliceErr` but `ErrSkip` error type can be used to skip entry instead of erroring out.  `[]T1 -> ([]T2,err)`
-
+* `MapToSlice` - use `f(K,V)V2` to generate slice from map.  `map[K]V -> []V2`
+* `MapToSliceSorted` - use `f(K,V)V2` to generate slice from map, elements are parsed in order sorted via `sortedFuncLess(left K, right K)`.
+   `map[K]V -> sort(K,K) -> []V2`
 
 ### Filter
 

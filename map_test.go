@@ -185,3 +185,52 @@ func TestMapMapInplace(t *testing.T) {
 		3: "c",
 	}, out)
 }
+
+func TestMapMerge(t *testing.T) {
+	expected := map[string]string{
+		"one":   "one",
+		"two":   "two",
+		"three": "three",
+		"four":  "four",
+		"five":  "five",
+	}
+	m1 := map[string]string{
+		"one":   "one",
+		"two":   "",
+		"three": "dsa",
+		"four":  "four",
+	}
+	m2 := map[string]string{
+		"one":   "",
+		"two":   "two",
+		"three": "three",
+		"five":  "five",
+	}
+	m3 := MapMergeNonzero(m1, m2)
+	assert.Equal(t, expected, m3)
+}
+func TestMapMergeFunc(t *testing.T) {
+	expected := map[string]string{
+		"one":   "_one",
+		"two":   "two_",
+		"three": "three_four",
+		"five":  "_five",
+		"six":   "six_",
+	}
+	m1 := map[string]string{
+		"one":   "one",
+		"two":   "",
+		"three": "four",
+		"five":  "five",
+	}
+	m2 := map[string]string{
+		"one":   "",
+		"two":   "two",
+		"three": "three",
+		"six":   "six",
+	}
+	m3 := MapMergeFunc(func(k string, v1 string, v2 string) string {
+		return v2 + "_" + v1
+	}, m1, m2)
+	assert.Equal(t, expected, m3)
+}

@@ -127,6 +127,8 @@ fmt.Printf("%+v", mappedData)
 * `MapToSlice` - use `f(K,V)V2` to generate slice from map.  `map[K]V -> []V2`
 * `MapToSliceSorted` - use `f(K,V)V2` to generate slice from map, elements are parsed in order sorted via `sortedFuncLess(left K, right K)`.
    `map[K]V -> sort(K,K) -> []V2`
+* `MapMergeNonzero` - replace map value with second map if it is not zero/empty and return it as new map
+* `MapMergeFunc` - merge 2 map values using thru function and return as 3rd map. 
 
 ### Filter
 

@@ -1,6 +1,9 @@
 package goneric
 
-import "sort"
+import (
+	"reflect"
+	"sort"
+)
 
 // Map maps the list of variadic(...) values via function.
 // It is provided as convenience, MapSlice() should be used when you have incoming slice
@@ -102,7 +105,7 @@ func MapSliceValue[K comparable, V any](in map[K]V) (out []V) {
 }
 
 // MapToSlice converts map into slice via specified function
-func MapToSlice[K1 comparable, V any, V2 any](f func(k K1, v V) V2, in map[K1]V) (out []V2) {
+func MapToSlice[K comparable, V any, V2 any](f func(k K, v V) V2, in map[K]V) (out []V2) {
 	out = make([]V2, len(in))
 	i := 0
 	for k, v := range in {
@@ -113,10 +116,10 @@ func MapToSlice[K1 comparable, V any, V2 any](f func(k K1, v V) V2, in map[K1]V)
 }
 
 // MapToSliceSorted converts map into slice via specified function
-func MapToSliceSorted[K1 comparable, V any, V2 any](
-	f func(k K1, v V) V2,
-	sortFuncLess func(left K1, right K1) bool,
-	in map[K1]V,
+func MapToSliceSorted[K comparable, V any, V2 any](
+	f func(k K, v V) V2,
+	sortFuncLess func(left K, right K) bool,
+	in map[K]V,
 ) (out []V2) {
 	out = make([]V2, len(in))
 	i := 0
@@ -148,4 +151,34 @@ func MapMapInplace[K1, K2 comparable, V1, V2 any](mapFunc func(k K1, v V1) (K2, 
 		kout, vout := mapFunc(kin, vin)
 		out[kout] = vout
 	}
+}
+
+// / MapMergeNonzero merges second map to first if value is not zero
+func MapMergeNonzero[K comparable, V comparable](M1, M2 map[K]V) map[K]V {
+	out := map[K]V{}
+	for k, v := range M1 {
+		out[k] = v
+	}
+	for k, v := range M2 {
+		if M2[k] != reflect.Zero(reflect.TypeOf(v)).Interface() {
+			out[k] = M2[k]
+		}
+	}
+	return out
+}
+
+// MapMergeFunc merges 2 maps using function to get the final value
+func MapMergeFunc[K comparable, V any](mapFunc func(k K, v1 V, v2 V) V, M1, M2 map[K]V) map[K]V {
+	out := map[K]V{}
+
+	for k, v := range M1 {
+		out[k] = v
+	}
+	for k, v := range M2 {
+		out[k] = v
+	}
+	for k := range out {
+		out[k] = mapFunc(k, M1[k], M2[k])
+	}
+	return out
 }

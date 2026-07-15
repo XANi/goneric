@@ -4,6 +4,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"sync"
 	"testing"
+	"testing/synctest"
 	"time"
 )
 
@@ -46,14 +47,27 @@ func TestChanToSliceN(t *testing.T) {
 }
 
 func TestChanToSliceNTimeout(t *testing.T) {
-	f1 := ctr{}
-	chGen1 := GenChan(func() int { return f1.SleepyCounter(time.Millisecond * 100) })
-	out1 := ChanToSliceNTimeout(chGen1, 10, time.Millisecond*350)
-	assert.Equal(t, []int{1, 2, 3}, out1)
-	f2 := ctr{}
-	chGen2 := GenChan(func() int { return f2.SleepyCounter(time.Millisecond) })
-	out2 := ChanToSliceNTimeout(chGen2, 10, time.Millisecond*350)
-	assert.Equal(t, []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, out2)
+	synctest.Test(t, func(t *testing.T) {
+		// timeout hits first: elements arrive at 100/200/300ms, timeout at 350ms
+		// GenChanN (unlike GenChan) terminates, which synctest requires of bubble goroutines
+		f1 := ctr{}
+		ch1 := GenChanN(func(int) int { return f1.SleepyCounter(time.Millisecond * 100) }, 10, true)
+		out1 := ChanToSliceNTimeout(ch1, 10, time.Millisecond*350)
+		assert.Equal(t, []int{1, 2, 3}, out1)
+		// drain so the generator goroutine can exit before the bubble ends
+		for range ch1 {
+		}
+		// n hits first: all 10 elements arrive within 10ms
+		f2 := ctr{}
+		ch2 := GenChanN(func(int) int { return f2.SleepyCounter(time.Millisecond) }, 10, true)
+		out2 := ChanToSliceNTimeout(ch2, 10, time.Millisecond*350)
+		assert.Equal(t, []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, out2)
+		// channel closed before n or timeout: returns what was received, immediately
+		f3 := ctr{}
+		ch3 := GenChanN(func(int) int { return f3.SleepyCounter(time.Millisecond) }, 2, true)
+		out3 := ChanToSliceNTimeout(ch3, 10, time.Hour)
+		assert.Equal(t, []int{1, 2}, out3)
+	})
 }
 
 func TestSliceToChan(t *testing.T) {

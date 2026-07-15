@@ -83,6 +83,9 @@ func TestMedian(t *testing.T) {
 	assert.Equal(t, 8, Median(8))
 	assert.Equal(t, 9, Median(8, 10))
 	assert.Equal(t, 2.5, Median(2.0, 3.0))
+	in := []int{12, 2, 10, 4, 8, 6, 9999}
+	assert.Equal(t, 8, Median(in...))
+	assert.Equal(t, []int{12, 2, 10, 4, 8, 6, 9999}, in, "input should be unchanged")
 }
 func TestMedianF64(t *testing.T) {
 	assert.Equal(t, 8.0, MedianF64(2, 4, 6, 8, 10, 12, 9999))
@@ -90,4 +93,27 @@ func TestMedianF64(t *testing.T) {
 	assert.Equal(t, 8.0, MedianF64(8))
 	assert.Equal(t, 8.5, MedianF64(8, 9))
 	assert.Equal(t, 2.5, MedianF64(2.0, 3.0))
+	in := []int{12, 2, 10, 4, 8, 6, 9999}
+	assert.Equal(t, 8.0, MedianF64(in...))
+	assert.Equal(t, []int{12, 2, 10, 4, 8, 6, 9999}, in, "input should be unchanged")
+}
+func TestMedianInplace(t *testing.T) {
+	assert.Equal(t, 8, MedianInplace(2, 4, 6, 8, 10, 12, 9999))
+	assert.Equal(t, 9, MedianInplace(2, 4, 6, 8, 10, 12, 14, 9999))
+	assert.Equal(t, 8, MedianInplace(8))
+	assert.Equal(t, 9, MedianInplace(8, 10))
+	assert.Equal(t, 2.5, MedianInplace(2.0, 3.0))
+	in := []int{12, 2, 10, 4, 8, 6, 9999}
+	assert.Equal(t, 8, MedianInplace(in...))
+	assert.Equal(t, []int{2, 4, 6, 8, 10, 12, 9999}, in, "input gets sorted")
+}
+func TestMedianF64Inplace(t *testing.T) {
+	assert.Equal(t, 8.0, MedianF64Inplace(2, 4, 6, 8, 10, 12, 9999))
+	assert.Equal(t, 9.0, MedianF64Inplace(2, 4, 6, 8, 10, 12, 14, 9999))
+	assert.Equal(t, 8.0, MedianF64Inplace(8))
+	assert.Equal(t, 8.5, MedianF64Inplace(8, 9))
+	assert.Equal(t, 2.5, MedianF64Inplace(2.0, 3.0))
+	in := []int{12, 2, 10, 4, 8, 6, 9999}
+	assert.Equal(t, 8.0, MedianF64Inplace(in...))
+	assert.Equal(t, []int{2, 4, 6, 8, 10, 12, 9999}, in, "input gets sorted")
 }

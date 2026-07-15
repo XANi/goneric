@@ -153,7 +153,8 @@ func MapMapInplace[K1, K2 comparable, V1, V2 any](mapFunc func(k K1, v V1) (K2, 
 	}
 }
 
-// / MapMergeNonzero merges second map to first if value is not zero
+// MapMergeNonzero merges two maps, with non-zero values from the second map overwriting values from the first
+// Returns a new map, inputs are unchanged
 func MapMergeNonzero[K comparable, V comparable](M1, M2 map[K]V) map[K]V {
 	out := map[K]V{}
 	for k, v := range M1 {
@@ -168,6 +169,9 @@ func MapMergeNonzero[K comparable, V comparable](M1, M2 map[K]V) map[K]V {
 }
 
 // MapMergeFunc merges 2 maps using function to get the final value
+// The function is called for every key of the union of both maps,
+// if a key is missing from one of the maps its zero value is passed
+// Returns a new map, inputs are unchanged
 func MapMergeFunc[K comparable, V any](mapFunc func(k K, v1 V, v2 V) V, M1, M2 map[K]V) map[K]V {
 	out := map[K]V{}
 

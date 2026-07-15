@@ -211,8 +211,10 @@ Results unless specified otherwise will follow math of type, so median of `[]int
 * `Avg`
 * `AvgF64` - average with final input calculated as float64. Addition is still in source 
 * `AvgF64F64` - average with float64 accumulator. Use if you want to avoid overflow on small int type
-* `Median`
-* `MedianF64` - median with final division using float64 type to avoid overflows
+* `Median` - median, input is unchanged (sorting is done on a copy)
+* `MedianF64` - median with final division using float64 type to avoid overflows, input is unchanged (sorting is done on a copy)
+* `MedianInplace` - as `Median` but sorts the input in the process, avoiding the copy
+* `MedianF64Inplace` - as `MedianF64` but sorts the input in the process, avoiding the copy
 
 
 ## Types

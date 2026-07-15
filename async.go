@@ -53,7 +53,8 @@ func AsyncVUnpanic[T1 any](funcList ...func() T1) chan T1 {
 	return out
 }
 
-// AsyncPipe runs a function in goroutine from input channel and returns pipe with result
+// AsyncPipe takes a single value from input channel, runs it thru function in goroutine
+// and returns channel with the result
 func AsyncPipe[T1, T2 any](in chan T1, f func(T1) T2) chan T2 {
 	out := make(chan T2, 1)
 	go func() {
@@ -62,7 +63,7 @@ func AsyncPipe[T1, T2 any](in chan T1, f func(T1) T2) chan T2 {
 	return out
 }
 
-// AsyncOut takes value and feeds it to function returning asynchronously to channel
+// AsyncOut takes a single value from input channel and asynchronously feeds function result to the provided output channel
 func AsyncOut[T1, T2 any](in chan T1, f func(T1) T2, out chan T2) {
 	go func() {
 		out <- f(<-in)

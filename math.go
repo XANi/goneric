@@ -60,7 +60,26 @@ func AvgF64F64[T Number](n ...T) (avg float64) {
 	return avg
 }
 
+// Median calculates median. Input is unchanged, sorting is done on a copy.
+// Use MedianInplace if you don't care about input order and want to avoid the copy
 func Median[T Number](n ...T) (median T) {
+	c := make([]T, len(n))
+	copy(c, n)
+	return MedianInplace(c...)
+}
+
+// MedianF64 calculates median with final division using float64 type.
+// Input is unchanged, sorting is done on a copy.
+// Use MedianF64Inplace if you don't care about input order and want to avoid the copy
+func MedianF64[T Number](n ...T) (median float64) {
+	c := make([]T, len(n))
+	copy(c, n)
+	return MedianF64Inplace(c...)
+}
+
+// MedianInplace calculates median, sorting the input in the process.
+// Passing a slice as `s...` will reorder it, as variadic call does not copy
+func MedianInplace[T Number](n ...T) (median T) {
 	// TODO probably want math-specific sort here, not to call function every time.
 	sort.Slice(n, func(x, y int) bool { return n[x] < n[y] })
 	if (len(n) % 2) == 0 {
@@ -70,8 +89,10 @@ func Median[T Number](n ...T) (median T) {
 	}
 }
 
-// MedianF64 calculates median with final division using float64 type
-func MedianF64[T Number](n ...T) (median float64) {
+// MedianF64Inplace calculates median with final division using float64 type,
+// sorting the input in the process.
+// Passing a slice as `s...` will reorder it, as variadic call does not copy
+func MedianF64Inplace[T Number](n ...T) (median float64) {
 	// TODO probably want math-specific sort here, not to call function every time.
 	sort.Slice(n, func(x, y int) bool { return n[x] < n[y] })
 	if (len(n) % 2) == 0 {

@@ -6,8 +6,7 @@ import (
 
 // WorkerPool spawns `concurrency` goroutines eating from input channel and sending it to output channel
 // caller should take care of closing input channel after it finished sending requests
-// output channel will be closed after input is processed and closed
-// optionally setting last option to true will make it close output channel
+// optionally setting last option to true will make it close output channel after input is processed and closed
 func WorkerPool[T1, T2 any](input chan T1, output chan T2, worker func(T1) T2, concurrency int, closeOutputChan ...bool) {
 	if concurrency < 1 {
 		panic("RTFM")

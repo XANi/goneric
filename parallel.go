@@ -4,7 +4,7 @@ import (
 	"sync"
 )
 
-// ParallelMapSlice takes variadic argument and runs all of them thru function in parallel, up to `concurrency` goroutines
+// ParallelMap takes variadic arguments and runs all of them thru function in parallel, up to `concurrency` goroutines
 // Order of elements in slice is kept
 func ParallelMap[T1, T2 any](mapFunc func(T1) T2, concurrency int, slice ...T1) []T2 {
 	return ParallelMapSlice(mapFunc, concurrency, slice)
@@ -87,8 +87,8 @@ func ParallelMapMap[K1, K2 comparable, V1, V2 any](
 	return out
 }
 
-// ParallelMapSliceChan feeds slice to function in parallel and returns channels with function output
-// channel is closed when function finishes. Caller should close input channel when it finishes sending
+// ParallelMapSliceChan feeds slice to function in parallel and returns channel with function output
+// channel is closed when all elements are processed. Caller should consume the whole output channel
 // or else it will leak goroutines
 func ParallelMapSliceChan[T1, T2 any](mapFunc func(T1) T2, concurrency int, slice []T1) chan T2 {
 	in := make(chan T1, 1)
@@ -106,8 +106,8 @@ func ParallelMapSliceChan[T1, T2 any](mapFunc func(T1) T2, concurrency int, slic
 	return out
 }
 
-// ParallelMapSliceChanFinisher feeds slice to function in parallel and returns channels with function output
-// channel is closed when function finishes. Caller should close input channel when it finishes sending
+// ParallelMapSliceChanFinisher feeds slice to function in parallel and returns channel with function output
+// channel is closed when all elements are processed. Caller should consume the whole output channel
 // or else it will leak goroutines
 // Second channel will return true (and then be closed) when the worker finishes parsing
 func ParallelMapSliceChanFinisher[T1, T2 any](mapFunc func(T1) T2, concurrency int, slice []T1) (chan T2, chan bool) {

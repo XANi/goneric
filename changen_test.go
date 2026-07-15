@@ -72,6 +72,19 @@ func TestChanGenCloser(t *testing.T) {
 		assert.NotEqual(t, 4, d)
 		assert.Panics(t, func() { close(ch) }, "make sure out channel is closed")
 	})
+	t.Run("closer called multiple times", func(t *testing.T) {
+		f := ctr{}
+		ch := make(chan int, 1)
+		cl := ChanGenCloser(f.Counter, ch)
+		_ = <-ch
+		cl(true)
+		// subsequent calls should be ignored, not deadlock
+		cl(true)
+		cl()
+		// drain in-flight messages, finishes only if generator closed the channel
+		for range ch {
+		}
+	})
 	t.Run("without closing output channel", func(t *testing.T) {
 		f := ctr{}
 		ch := make(chan int, 1)

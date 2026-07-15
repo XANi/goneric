@@ -28,23 +28,24 @@ func ChanToSliceN[T any](inCh chan T, n int) []T {
 }
 
 // ChanToSliceNTimeout loads up to n elements from to slice to channel or up until timeout expires
+// or the channel is closed, whichever comes first
 func ChanToSliceNTimeout[T any](inCh chan T, n int, timeout time.Duration) []T {
 	s := make([]T, 0)
-	idx := 0
 	t := time.After(timeout)
 	for {
 		select {
 		case <-t:
 			return s
-		case v := <-inCh:
+		case v, ok := <-inCh:
+			if !ok {
+				return s
+			}
 			s = append(s, v)
-			idx++
-			if idx >= n {
+			if len(s) >= n {
 				return s
 			}
 		}
 	}
-
 }
 
 // SliceToChan feeds slice to channel

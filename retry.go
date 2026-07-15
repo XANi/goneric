@@ -33,7 +33,7 @@ func RetryAfter[T any](
 		}
 		commandDuration = time.Now().Sub(start)
 		time.Sleep(interval)
-		interval = Min(max_interval, (min_interval * 3 / 2))
+		interval = Min(max_interval, (interval * 3 / 2))
 		if start.Add(interval).Add(commandDuration).After(finish) {
 			// if we're near finish we will just try to run command at last second
 			ttf := finish.Sub(time.Now())

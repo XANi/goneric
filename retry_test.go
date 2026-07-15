@@ -5,6 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"sync"
 	"testing"
+	"testing/synctest"
 	"time"
 )
 
@@ -73,6 +74,44 @@ func TestRetryExp(t *testing.T) {
 		time.Millisecond*50,
 		func() (int, error) { return a2.OkAfter(9) })
 	assert.Error(t, err2)
+}
+
+func TestRetryAfterInterval(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		minInterval := time.Millisecond * 10
+		maxInterval := time.Millisecond * 100
+		totalTimeout := time.Second
+		begin := time.Now()
+		calls := []time.Time{}
+		_, err := RetryAfter(minInterval, maxInterval, totalTimeout,
+			func() (int, error) {
+				calls = append(calls, time.Now())
+				return 0, errors.New("fail")
+			})
+		assert.Error(t, err)
+		if !assert.Greater(t, len(calls), 4, "expected more than a few attempts") {
+			return
+		}
+		intervals := make([]time.Duration, len(calls)-1)
+		for i := 1; i < len(calls); i++ {
+			intervals[i-1] = calls[i].Sub(calls[i-1])
+		}
+		// first retry happens after min_interval
+		assert.Equal(t, minInterval, intervals[0], "first retry should happen after min_interval")
+		// then intervals grow 1.5x per attempt, capped at max_interval
+		for i := 1; i < len(intervals)-1; i++ {
+			expected := Min(maxInterval, intervals[i-1]*3/2)
+			assert.Equal(t, expected, intervals[i],
+				"interval #%d should grow 1.5x from previous (up to max_interval)", i)
+		}
+		// last retry happens near total_timeout, the final interval may be
+		// shortened to hit it
+		lastInterval := intervals[len(intervals)-1]
+		assert.LessOrEqual(t, lastInterval, maxInterval, "no interval should exceed max_interval")
+		elapsed := calls[len(calls)-1].Sub(begin)
+		assert.GreaterOrEqual(t, elapsed, totalTimeout, "last retry should happen near total_timeout")
+		assert.LessOrEqual(t, elapsed, totalTimeout+maxInterval, "last retry should happen near total_timeout")
+	})
 }
 
 func TestTry(t *testing.T) {

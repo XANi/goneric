@@ -1,5 +1,5 @@
 [![go report card](https://goreportcard.com/badge/github.com/XANi/goneric "go report card")](https://goreportcard.com/report/github.com/XANi/goneric)
-[![test status](https://github.com/go-gorm/gorm/workflows/tests/badge.svg?branch=master "test status")](https://github.com/XANi/goneric)
+[![test status](https://github.com/XANi/goneric/actions/workflows/build.yaml/badge.svg?branch=master "test status")](https://github.com/XANi/goneric/actions/workflows/build.yaml)
 [![codecov](https://codecov.io/gh/XANi/goneric/branch/master/graph/badge.svg?token=079HADYAJG)](https://codecov.io/gh/XANi/goneric)
 [![MIT license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT)
 [![Go.Dev reference](https://img.shields.io/badge/go.dev-reference-blue?logo=go&logoColor=white)](https://pkg.go.dev/github.com/XANi/goneric?tab=doc)
@@ -108,8 +108,8 @@ fmt.Printf("%+v", mappedData)
 * `SliceReverseInplace` - reverses the order of elements in slice in-place.
 * `FirstOrEmpty` - return first element or empty value. `[]T -> T`
 * `LastOrEmpty` - return last element or empty value. `[]T -> T`
-* `FirstOrEmpty` - return first element or passed "default" value. `[]T -> T`
-* `LastOrEmpty` - return last element or passed "default" value. `[]T -> T`
+* `FirstOrDefault` - return first element or passed "default" value. `[]T -> T`
+* `LastOrDefault` - return last element or passed "default" value. `[]T -> T`
 
 
 ### Map
@@ -121,14 +121,15 @@ fmt.Printf("%+v", mappedData)
 * `MapSliceKey` - Convert map to slice of its keys. `map[K]V -> []K` 
 * `MapSliceValue` - Convert map to slice of its values. `map[K]V -> []V`
 * `MapErr` - Same as `Map` but function can return error that will stop the loop and propagate it out.  `T1... -> ([]T2,err)`
-* `MapSliceErr` - Same as `MapSlice` but function can return error that will stop the loop and propagate it out.  `T1... -> ([]T2,err)`
+* `MapSliceErr` - Same as `MapSlice` but function can return error that will stop the loop and propagate it out.  `[]T1 -> ([]T2,err)`
 * `MapSliceSkip` - Same as `MapSlice` but function can return true in second argument to skip the entry. `[]T1 -> []T2`
 * `MapSliceErrSkip` - Same as `MapSliceErr` but `ErrSkip` error type can be used to skip entry instead of erroring out.  `[]T1 -> ([]T2,err)`
 * `MapToSlice` - use `f(K,V)V2` to generate slice from map.  `map[K]V -> []V2`
 * `MapToSliceSorted` - use `f(K,V)V2` to generate slice from map, elements are parsed in order sorted via `sortedFuncLess(left K, right K)`.
    `map[K]V -> sort(K,K) -> []V2`
-* `MapMergeNonzero` - replace map value with second map if it is not zero/empty and return it as new map
-* `MapMergeFunc` - merge 2 map values using thru function and return as 3rd map. 
+* `MapMergeNonzero` - merge two maps, with non-zero values from second map overwriting values from first, returned as new map
+* `MapMergeFunc` - merge 2 maps using function to compute the final value, returned as new map. 
+   Function is called for every key of the union of both maps, getting zero value for a key missing from one of them.
 
 ### Filter
 
@@ -142,10 +143,10 @@ fmt.Printf("%+v", mappedData)
 
 * `ChanGen` - Feed function output to passed channel in a loop. `(f()T, chan T)`
 * `ChanGenN` - Feed function output to passed channel in a loop N times, optionally close it. `(f()T, count, chan T)`
-* `ChanGenCloser` - Use function to pass generated messages to channel, stop when closer function is called,  `(f()T, chan T) -> chan closeChannel`
+* `ChanGenCloser` - Use function to pass generated messages to channel, stop when closer function is called,  `(f()T, chan T) -> closer(closeChannel ...bool)`
 * `ChanToSlice` - Loads data to slice from channel until channel is closed. `chan T -> []T`
 * `ChanToSliceN` - Loads data to slice from channel to at most N elements. `(chan T,count) -> []T`
-* `ChanToSliceNTimeout` - Loads data to slice from channel to at most N elements or until timeout passes. `(chan T,count,timeout) -> []T`
+* `ChanToSliceNTimeout` - Loads data to slice from channel to at most N elements, until timeout passes or channel is closed. `(chan T,count,timeout) -> []T`
 * `SliceToChan` - Sends slice to passed channel in background, optionally closes it. `[]T -> chan T`
 
 
@@ -161,7 +162,7 @@ fmt.Printf("%+v", mappedData)
 ### Parallel
 
 * `ParallelMap` - like `Map` but runs function in parallel up to specified number of goroutines. Ordered.
-* `ParallelMap` - like `MapMap` but runs function in parallel up to specified number of goroutines. Ordered.
+* `ParallelMapMap` - like `MapMap` but runs function in parallel up to specified number of goroutines. Ordered.
 * `ParallelMapSlice` - like `MapSlice` but runs function in parallel up to specified number of goroutines. Ordered.
 * `ParallelMapSliceChan` - runs slice elements thru function and sends it to channel
 * `ParallelMapSliceChanFinisher` - runs slice elements thru function and sends it to channel. 
@@ -171,16 +172,16 @@ fmt.Printf("%+v", mappedData)
 ### Async
 
 * `Async` - run function in background goroutine and return result as a channel. `func()T -> chan T`
-* `AsyncV` - run functions in background goroutine and return result as a channel, then close it. `funcList... -> chan T`
-* `AsyncVUnpanic` - run function in background goroutine and return result as a channel, then close it, ignoring every panic. `funcList... -> chan T`
-* `AsyncPipe` - run function in background, taking and returning values to pipe. Designed to be chained. `(in chan T1,  func(T1)T2) -> chan T2`
+* `AsyncV` - run functions in background goroutines and return results as a channel, then close it. `funcList... -> chan T`
+* `AsyncVUnpanic` - run functions in background goroutines and return results as a channel, then close it, ignoring every panic. `funcList... -> chan T`
+* `AsyncPipe` - run function in background, taking single value from input channel and returning result to output channel. Designed to be chained. `(in chan T1,  func(T1)T2) -> chan T2`
 * `AsyncOut` - as `AsyncPipe` but takes output channel as argument .`(in chan T1, func(T1)T2, chan T2)`
 * `AsyncIn` - converts value into channel with that value. `T -> chan T`
 
 
 ### (Re)Try
 
-* `Retry` - retry function X times
+* `Retry` - run function until it succeeds, up to X calls total
 * `RetryAfter` - retry with timeout, minimal, and maximal interval between retries.
 * `Try` - tries each function in slice till first success
 
@@ -188,19 +189,18 @@ fmt.Printf("%+v", mappedData)
 ### Generators
 
 Generator functions always return generated values. 
-For ones that operate on passed on types look at `Type*Gen*` functions like `SliceGen`
 
 * `GenSlice` - generate slice of given length via function. `func(idx int) T -> []T`
 * `GenMap` - generate Map of given length via function. `func(idx int) K,V -> map[K]V`
-* `GenChan` - returns channel fed from generator function ad infinitum. `func() K -> chan T`
-* `GenChanN` - returns channel fed from generator function N times. `func() K -> chan T`
-* `GenChanNCloser` - returns channel fed from generator that returns closer() function that will stop generator from running.`func() K -> (chan T,func closer())` 
-* `GenSliceToChan` - returns channel fed from slice, optionally closes it, `[]K -> chan T`
+* `GenChan` - returns channel fed from generator function ad infinitum. `func() T -> chan T`
+* `GenChanN` - returns channel fed from generator function N times. `func(idx int) T -> chan T`
+* `GenChanCloser` - returns channel fed from generator and closer() function that will stop generator from running. `func() T -> (chan T, closer(closeChannel ...bool))` 
+* `GenSliceToChan` - returns channel fed from slice, optionally closes it, `[]T -> chan T`
 
 
 ### Math
 
-Not equivalent of `math` library, NaN math is ignored, zero length inputs might, sanitize your inputs.
+Not equivalent of `math` library, NaN math is ignored, zero length inputs might panic, sanitize your inputs.
 
 Results unless specified otherwise will follow math of type, so median of `[]int{8,9}` will be `int{8}` coz of rounding.
 
@@ -230,7 +230,7 @@ Results unless specified otherwise will follow math of type, so median of `[]int
 
 ## Current project state
 
-No API changes to existing functions AP will be made in 1.x.x releases
+No API changes to existing functions will be made in 1.x.x releases
 
 
 ## Analytics

@@ -13,7 +13,7 @@ func ChanToSlice[T any](inCh chan T) []T {
 	return s
 }
 
-// ChanToSliceN loads up to n elements from to slice to channel
+// ChanToSliceN loads up to n elements from channel to slice
 func ChanToSliceN[T any](inCh chan T, n int) []T {
 	s := make([]T, 0)
 	idx := 0
@@ -27,8 +27,8 @@ func ChanToSliceN[T any](inCh chan T, n int) []T {
 	return s
 }
 
-// ChanToSliceNTimeout loads up to n elements from to slice to channel or up until timeout expires
-// or the channel is closed, whichever comes first
+// ChanToSliceNTimeout loads up to n elements from channel to slice,
+// until timeout expires or the channel is closed, whichever comes first
 func ChanToSliceNTimeout[T any](inCh chan T, n int, timeout time.Duration) []T {
 	s := make([]T, 0)
 	t := time.After(timeout)

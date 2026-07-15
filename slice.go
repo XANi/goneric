@@ -110,7 +110,7 @@ func SliceDiff[T comparable](v1 []T, v2 []T) (inLeft []T, inRight []T) {
 }
 
 // SliceDiffFunc compares two slices of any value
-// using one conversion function per type to convert it into conmparables
+// using one conversion function per type to convert it into comparables
 // returns slice of elements that are only in first/left element
 // and ones that are only in right element.
 // Duplicates are ignored.

@@ -1,7 +1,6 @@
 package goneric
 
-// All "Gen*" functions are supposed to return generated data, for ones using existing structures
-// there are Type* functions
+// All "Gen*" functions are supposed to return generated data
 
 // GenSlice generates a slice of given length based on passed function.
 // Function gets id of element starting from 0.

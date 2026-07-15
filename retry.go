@@ -2,7 +2,7 @@ package goneric
 
 import "time"
 
-// Retry retries function that returns error up to n times
+// Retry runs function until it succeeds, making up to n calls total
 func Retry[T any](n int, f func() (T, error)) (T, error) {
 	for i := 1; i < n; i++ {
 		out, err := f()
